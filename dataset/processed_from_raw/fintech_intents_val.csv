@@ -1,0 +1,186 @@
+text,intent,response,language,channel,source
+i have a question about fee for cash withdraw,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+i paid with my card and ended up being charged a fee,fee_inquiry,Fees depend on account plan and transaction type. Check fee preview before confirmation.,en,mobile,banking77
+i just transferred my friend money but she hasn t received it yet and it s been a few hours can you tell me when to expect it to go through,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+my card was charged more than expected,fee_inquiry,Fees depend on account plan and transaction type. Check fee preview before confirmation.,en,mobile,banking77
+when will i get my money it s been too long,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+i believe i was charged for making a withdrawal after i went grocery shopping are you guys charging for this now,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+what is your policy on withdrawing cash from an atm there is a fee on my account that wasn t there before i paid for my groceries,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+i got a message that my transfer was declined,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+please tell me why i was charged additionally when i used the card,fee_inquiry,Fees depend on account plan and transaction type. Check fee preview before confirmation.,en,mobile,banking77
+is there a charge on withdrawals,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+am i able to track the card that was just sent to me,card_issue,"For card issues, please open Card Support to freeze, replace, or troubleshoot.",en,mobile,banking77
+what to do if my physical card is not working,card_issue,"For card issues, please open Card Support to freeze, replace, or troubleshoot.",en,mobile,banking77
+why are there fees for using a card,fee_inquiry,Fees depend on account plan and transaction type. Check fee preview before confirmation.,en,mobile,banking77
+how can i periodically check the delivery of the card you sent,card_issue,"For card issues, please open Card Support to freeze, replace, or troubleshoot.",en,mobile,banking77
+why am i being charged for atm cash withdrawals the only reason i use it is because it s been free now you expect me to pay for them and how much is that going to cost me,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+what is the charge for paying with my card,fee_inquiry,Fees depend on account plan and transaction type. Check fee preview before confirmation.,en,mobile,banking77
+i am seeing in the app some cash witdhrawals that i did not authorize,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+when will i get my card,card_issue,"For card issues, please open Card Support to freeze, replace, or troubleshoot.",en,mobile,banking77
+i didnt do this charge,fraud_report,Please report the suspicious transaction immediately and lock your card for safety.,en,mobile,banking77
+i just sent money but the person i sent it to doesn t see it what happened,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+there is a record of payment i never submitted on the app,fraud_report,Please report the suspicious transaction immediately and lock your card for safety.,en,mobile,banking77
+how long does it typically take a transfer to go through i sent some money to a friend earlier today and she really needs it it still is a pending transfer even though i sent it a few hours ago,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+i wanted to buy something online yesterday but i could not because the card got declined on the day of and the following day what is wrong with the card,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+i don t recognize this payment on my app i am sure i didn t spend any money there,fraud_report,Please report the suspicious transaction immediately and lock your card for safety.,en,mobile,banking77
+there is an unauthorized cash withdrawal from my account for 500 i definitely didn t make this withdrawal i need your help,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+i was charged extra for a withdrawal,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+where is the card i ordered 2 weeks ago,card_issue,"For card issues, please open Card Support to freeze, replace, or troubleshoot.",en,mobile,banking77
+there was a fee charged when i paid with my card,fee_inquiry,Fees depend on account plan and transaction type. Check fee preview before confirmation.,en,mobile,banking77
+i think someone may have cloned my card or something my card isn t lost but i just saw a charge of 500 cash withdraw can you help me,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+good morning i tried to make a purchase with my credit card last night and again this morning both times it was declined can you investigate,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+what do i do if i accidentally broke my card,card_issue,"For card issues, please open Card Support to freeze, replace, or troubleshoot.",en,mobile,banking77
+i know i m getting a new card but would like know when i can expect to receive it,card_issue,"For card issues, please open Card Support to freeze, replace, or troubleshoot.",en,mobile,banking77
+a payment in my account was made by someone i don t know,fraud_report,Please report the suspicious transaction immediately and lock your card for safety.,en,mobile,banking77
+for some reason i am unable to preform a transfer to a beneficiary,wallet_topup,Wallet top up is available through linked bank card or bank transfer options.,en,mobile,banking77
+i was charged a fee when withdrawing cash can you explain why,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+i m trying to make a payment to my new landlord even though the payment was sent a few days ago it isn t clearing on their side can you verify that payment has been made,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+i withdrew cash and was charged,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+why would my beneficiary not be allowed,wallet_topup,Wallet top up is available through linked bank card or bank transfer options.,en,mobile,banking77
+how to pay internet bill please,bill_payment,"Bill payments are available in Payments and Bills, including recurring setup.",en,mobile,synthetic_seed
+i was charged a fee for withdrawing cash,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+i can t get the card itself to work,card_issue,"For card issues, please open Card Support to freeze, replace, or troubleshoot.",en,mobile,banking77
+why did my transfer to a beneficiary fail,wallet_topup,Wallet top up is available through linked bank card or bank transfer options.,en,mobile,banking77
+why hasn t my transaction arrived to my friend yet,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+can someone assist me by explaining why my card is not working,card_issue,"For card issues, please open Card Support to freeze, replace, or troubleshoot.",en,mobile,banking77
+what happens when i money transaction doesn t show up on the receiving side,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+how long do transfers typically take is there a way of speeding the process up my friend needs the money i sent her desperately,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+why is my beneficiary not working,wallet_topup,Wallet top up is available through linked bank card or bank transfer options.,en,mobile,banking77
+i haven t gotten my new card,card_issue,"For card issues, please open Card Support to freeze, replace, or troubleshoot.",en,mobile,banking77
+there seems to be a couple of payments listed in the app i know weren t made by me is there a possibility someone has access to my card can you find out what s going on,fraud_report,Please report the suspicious transaction immediately and lock your card for safety.,en,mobile,banking77
+does the package with my card have tracking,card_issue,"For card issues, please open Card Support to freeze, replace, or troubleshoot.",en,mobile,banking77
+i tried to do a transfer to an account but it didn t work,wallet_topup,Wallet top up is available through linked bank card or bank transfer options.,en,mobile,banking77
+show wing wallet balance please,balance_inquiry,You can check your latest balance in the app dashboard under Accounts.,en,mobile,synthetic_seed
+why is there a payment i didn t do,fraud_report,Please report the suspicious transaction immediately and lock your card for safety.,en,mobile,banking77
+why are you not accepting my transfer i ve tried a couple times already now and it just keeps showing an error message,wallet_topup,Wallet top up is available through linked bank card or bank transfer options.,en,mobile,banking77
+anytime i ve made an atm withdrawal before it has always been free i now say that i have been charged for my most recent atm withdrawal what s going on here,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+my card doesn t accept any transaction at all what s wrong,card_issue,"For card issues, please open Card Support to freeze, replace, or troubleshoot.",en,mobile,banking77
+the app is showing mt withdrawals that aren t mine,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+i am having an issue with an in country transfer i did a few days ago it has yet to appear in my account i have checked to be sure that all account information is correct multiple times what is taking the transfer so long,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+i looked on the app and it says i withdrew cash i didn t,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+an extra fee has been added to my card payment is this correct,fee_inquiry,Fees depend on account plan and transaction type. Check fee preview before confirmation.,en,mobile,banking77
+why do transfers get declined,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+i have been charged a fee i didn t know about this fee before when do you charge extra for card payments,fee_inquiry,Fees depend on account plan and transaction type. Check fee preview before confirmation.,en,mobile,banking77
+how long do i have to wait for my transaction to be completed,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+there is a vendor name i don t recognize on a payment from my account i don t think i made this payment,fraud_report,Please report the suspicious transaction immediately and lock your card for safety.,en,mobile,banking77
+how long loan approval takes,loan_info,Loan options and eligibility can be reviewed in the Loans section.,en,mobile,synthetic_seed
+an unauthorized payment is in my app,fraud_report,Please report the suspicious transaction immediately and lock your card for safety.,en,mobile,banking77
+my statement has a payment that i do not recall making,fraud_report,Please report the suspicious transaction immediately and lock your card for safety.,en,mobile,banking77
+how can i check on the status of my new card,card_issue,"For card issues, please open Card Support to freeze, replace, or troubleshoot.",en,mobile,banking77
+this fee shouldn t be there after i paid with a card,fee_inquiry,Fees depend on account plan and transaction type. Check fee preview before confirmation.,en,mobile,banking77
+my actual card isn t working,card_issue,"For card issues, please open Card Support to freeze, replace, or troubleshoot.",en,mobile,banking77
+are there restrictions to transfers to certain accounts,wallet_topup,Wallet top up is available through linked bank card or bank transfer options.,en,mobile,banking77
+can i check somewhere if there will be a fee on my payment or not seems you are charging in some cases what s the pattern there,fee_inquiry,Fees depend on account plan and transaction type. Check fee preview before confirmation.,en,mobile,banking77
+i have been charged a fee for paying with card,fee_inquiry,Fees depend on account plan and transaction type. Check fee preview before confirmation.,en,mobile,banking77
+hello i have a question concerning an unfamiliar fee that i notice on my account i see that you guys charge for atm withdrawal never notice this fee until now can you please explain,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+i was unable to make a transfer to another account,wallet_topup,Wallet top up is available through linked bank card or bank transfer options.,en,mobile,banking77
+i have a payment in my statement that is off,fraud_report,Please report the suspicious transaction immediately and lock your card for safety.,en,mobile,banking77
+i sent money about 5 days ago and the recipient has not received the money yet,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+how long to take the time to solve,card_issue,"For card issues, please open Card Support to freeze, replace, or troubleshoot.",en,mobile,banking77
+shopping on line i was declined when trying to buy something,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+i have done a transfer within the country the day before yesterday but it s still not there yet can you please check what s going on with that the account number definitely is the right one i ve checked that several times already,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+please tell my why i was charged a fee for using my card,fee_inquiry,Fees depend on account plan and transaction type. Check fee preview before confirmation.,en,mobile,banking77
+i was doing a transfer and received a decline message,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+i have a cash withdrawal that i do not recognise,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+why did i get a message saying that my transfer is not possible i have done this before no problem please fix,wallet_topup,Wallet top up is available through linked bank card or bank transfer options.,en,mobile,banking77
+why doesn t my card work for any transactions,card_issue,"For card issues, please open Card Support to freeze, replace, or troubleshoot.",en,mobile,banking77
+i have never been charged for making an atm cash withdrawal before but i am now being charged a fee to withdraw cash what happened,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+transfer to friend local bank,fund_transfer,"To transfer funds, select recipient, amount, and confirm with secure verification.",en,mobile,regional_aug
+help i think someone has made a cash withdrawal with my card,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+i didnt put that money in my account,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+why would i get a decline message in a transfer,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+where can i find out the fee structure for my account i have been charged fees for some transactions but not for other ones i can t find a pattern in these fees,fee_inquiry,Fees depend on account plan and transaction type. Check fee preview before confirmation.,en,mobile,banking77
+someone needs to make me aware when there are extra charges for payments i happened to be looking at the app earlier and noticed a charge associated to a payment that was extra that no one made me aware of before at all,fee_inquiry,Fees depend on account plan and transaction type. Check fee preview before confirmation.,en,mobile,banking77
+why is there a cash withdrawal i didn t make,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+do you know if there is a tracking number for the new card you sent me,card_issue,"For card issues, please open Card Support to freeze, replace, or troubleshoot.",en,mobile,banking77
+is there an allowance on cards,fee_inquiry,Fees depend on account plan and transaction type. Check fee preview before confirmation.,en,mobile,banking77
+i do not recognise this card payment,fraud_report,Please report the suspicious transaction immediately and lock your card for safety.,en,mobile,banking77
+requirements to open account please,account_opening,You can open an account online by completing the onboarding steps.,en,mobile,synthetic_seed
+can i track when my card will be delivered,card_issue,"For card issues, please open Card Support to freeze, replace, or troubleshoot.",en,mobile,banking77
+i tried to purchase airline tickets online this morning and my card information isn t working is there something going on with my account,card_issue,"For card issues, please open Card Support to freeze, replace, or troubleshoot.",en,mobile,banking77
+i was expecting my new card by now,card_issue,"For card issues, please open Card Support to freeze, replace, or troubleshoot.",en,mobile,banking77
+there is a cash withdrawal transaction that i am unsure of,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+i tried transferring money to a beneficiary however i was unsuccessful,wallet_topup,Wallet top up is available through linked bank card or bank transfer options.,en,mobile,banking77
+i m getting concerned here i sent a friend some money and she isn t seeing it what s going on,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+why are you charging me fees for using my card,fee_inquiry,Fees depend on account plan and transaction type. Check fee preview before confirmation.,en,mobile,banking77
+there is a payment in the app that i did not approve,fraud_report,Please report the suspicious transaction immediately and lock your card for safety.,en,mobile,banking77
+hi i sent my landlord my rent money a few days ago and while everything seems good on my end he says that he never got the money i double checked the account number and it s correct can you help me figure this out,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+i am getting continuous failure for all my transfers i have cross checked each recipient detail again and again and everything is correct,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+a payment i didn t do shows in my app,fraud_report,Please report the suspicious transaction immediately and lock your card for safety.,en,mobile,banking77
+why would a transfer to a beneficiary not go through,wallet_topup,Wallet top up is available through linked bank card or bank transfer options.,en,mobile,banking77
+how can i transfer money to a beneficiary,wallet_topup,Wallet top up is available through linked bank card or bank transfer options.,en,mobile,banking77
+no transactions are being accepted what s wrong with my card,card_issue,"For card issues, please open Card Support to freeze, replace, or troubleshoot.",en,mobile,banking77
+my card hasn t arrived,card_issue,"For card issues, please open Card Support to freeze, replace, or troubleshoot.",en,mobile,banking77
+i have a confusing payment appear on my statement and i don t recognise it,fraud_report,Please report the suspicious transaction immediately and lock your card for safety.,en,mobile,banking77
+i completed a transfer within the uk two days ago but it is still not showing received i have verified the account number is correct already is there anything else i need to do or is there a problem,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+currently i can t get my card to work,card_issue,"For card issues, please open Card Support to freeze, replace, or troubleshoot.",en,mobile,banking77
+since when were there charges for taking out cash from my account it s always been free for me to do this before how much are the charges going to be,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+someone stole my wallet a couple of hours ago now and they have taken money from my account is there any way that you can help so i won t lose any more of my money,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+my app statement shows i took out cash from an atm but i did not what can i do,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+i made a transfer and they haven t received the money i sent them,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+there is some cash that is showing up on my app,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+there was an extra fee when i paid with the card,fee_inquiry,Fees depend on account plan and transaction type. Check fee preview before confirmation.,en,mobile,banking77
+what is this card payment i do not recognize it,fraud_report,Please report the suspicious transaction immediately and lock your card for safety.,en,mobile,banking77
+i received an extra charge for using the card why,fee_inquiry,Fees depend on account plan and transaction type. Check fee preview before confirmation.,en,mobile,banking77
+there is a fraudulent payment,fraud_report,Please report the suspicious transaction immediately and lock your card for safety.,en,mobile,banking77
+my card won t work at all for anything,card_issue,"For card issues, please open Card Support to freeze, replace, or troubleshoot.",en,mobile,banking77
+why was there a fee on my cash withdrawal,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+i swear that there are 2 payments on the app that i didn t make could my card me stolen please advise what i should do,fraud_report,Please report the suspicious transaction immediately and lock your card for safety.,en,mobile,banking77
+it s been two weeks and i haven t gotten my card what do i do,card_issue,"For card issues, please open Card Support to freeze, replace, or troubleshoot.",en,mobile,banking77
+i don t know where this transaction came from,fraud_report,Please report the suspicious transaction immediately and lock your card for safety.,en,mobile,banking77
+why hasn t a transaction to a friend cleared yet,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+so i was just charged for my recent atm withdrawal and any withdrawal prior to this has been free what is the issue here,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+wheres my money receipt,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+i am angry that i got charged for using my card,fee_inquiry,Fees depend on account plan and transaction type. Check fee preview before confirmation.,en,mobile,banking77
+am i allowed to transfer money to a beneficiary,wallet_topup,Wallet top up is available through linked bank card or bank transfer options.,en,mobile,banking77
+the card i have doesn t work,card_issue,"For card issues, please open Card Support to freeze, replace, or troubleshoot.",en,mobile,banking77
+why did i get charged for a withdrawal,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+why was i charged a fee when i withdrew money,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+can you help with a transfer to an account,wallet_topup,Wallet top up is available through linked bank card or bank transfer options.,en,mobile,banking77
+i tried to buy something online yesterday but it kept saying declined tried another time today but same thing happened what s broken,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+hello i m on the app and trying to purchase crypto it s not going through what am i doing wrong,wallet_topup,Wallet top up is available through linked bank card or bank transfer options.,en,mobile,banking77
+documents needed for verification please,kyc_verification,KYC verification requires identity details and document confirmation.,en,mobile,synthetic_seed
+an atm fee was attached to my recent withdrawal,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+i made a cash withdrawal and was charged a fee incorrectly can you help with this,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+my transfer failed to a beneficiary,wallet_topup,Wallet top up is available through linked bank card or bank transfer options.,en,mobile,banking77
+i am trying to complete a transfer but i keep getting an error message,wallet_topup,Wallet top up is available through linked bank card or bank transfer options.,en,mobile,banking77
+the atm charged me an extra fee why,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+why was my transaction charged an extra fee when paying with my card,fee_inquiry,Fees depend on account plan and transaction type. Check fee preview before confirmation.,en,mobile,banking77
+why does it cost more to pay with my card,fee_inquiry,Fees depend on account plan and transaction type. Check fee preview before confirmation.,en,mobile,banking77
+transfer could not be completed due to being declined,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+i don t think i made this transaction on my statement,fraud_report,Please report the suspicious transaction immediately and lock your card for safety.,en,mobile,banking77
+i m waiting for my transaction to complete,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+i transferred money and it didn t get there,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+i m starting to think my card is lost because it still hasn t arrived can you help,card_issue,"For card issues, please open Card Support to freeze, replace, or troubleshoot.",en,mobile,banking77
+there was an unexpected fee for my cash withdrawal,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+on the card that is coming what s the tracking info,card_issue,"For card issues, please open Card Support to freeze, replace, or troubleshoot.",en,mobile,banking77
+can you tell me why i haven t received my new card yet,card_issue,"For card issues, please open Card Support to freeze, replace, or troubleshoot.",en,mobile,banking77
+my app shows some cash i didn t get,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+how do i contact customer support about a transfer,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+there is a cash withdrawl i don t remember,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+can you tell me what the problem with my card is it was declined at a restaurant today,card_issue,"For card issues, please open Card Support to freeze, replace, or troubleshoot.",en,mobile,banking77
+i have a problem with my account i tried to transfer some funds and the message came back declined can you help me,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+transfer was declined,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+when i withdrew money from my account the other day i noticed that there was a fee i didn t think that there were any fees for withdrawals how much will i be charged,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+why did i get charged extra,fee_inquiry,Fees depend on account plan and transaction type. Check fee preview before confirmation.,en,mobile,banking77
+why isn t my card working,card_issue,"For card issues, please open Card Support to freeze, replace, or troubleshoot.",en,mobile,banking77
+how do i report a cash withdrawal that wasn t me,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+why is there now a charge for making cash withdrawals i wanted some cash after i went to the grocery store and there s a new fee,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+what does the decline message mean,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+i need to check status as my friend hasn t got money i sent,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+my transfer to an account failed,wallet_topup,Wallet top up is available through linked bank card or bank transfer options.,en,mobile,banking77
+my card is broke what do i do,card_issue,"For card issues, please open Card Support to freeze, replace, or troubleshoot.",en,mobile,banking77
+i think my transfer was declined but why,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+how can i check for an unsupported merchant for my transfer request,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+how come my transfer got declined,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+i have no idea why but my transfers keep getting declined i have double checked all the recipient details several times already and they re definitely correct,transaction_status,You can track the latest transaction status in your transaction history.,en,mobile,banking77
+was i charged extra for using my card,fee_inquiry,Fees depend on account plan and transaction type. Check fee preview before confirmation.,en,mobile,banking77
+i tried to transfer cryptocurrency into my account but was denied,wallet_topup,Wallet top up is available through linked bank card or bank transfer options.,en,mobile,banking77
+the card that i have isn t working this is the physical card,card_issue,"For card issues, please open Card Support to freeze, replace, or troubleshoot.",en,mobile,banking77
+some of my card payments look different than where i purchased products from why is that,fraud_report,Please report the suspicious transaction immediately and lock your card for safety.,en,mobile,banking77
+what can i do to track the card you sent me,card_issue,"For card issues, please open Card Support to freeze, replace, or troubleshoot.",en,mobile,banking77
+why would i receive an error that my transfer isn t possible when i ve done it before,wallet_topup,Wallet top up is available through linked bank card or bank transfer options.,en,mobile,banking77
+i do not recognize the card payment,fraud_report,Please report the suspicious transaction immediately and lock your card for safety.,en,mobile,banking77
+is there a fee when i get cash from an atm is there a limit i can take out if there is a fee what is it,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+i need my card frozen cause it was used without my consent to take money out it was in an odd place,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77
+i have a strange transaction on my account which appears to pertain to a cash withdrawal i made outside nandos in leeds what is that for is it fraud,cash_withdrawal,You can withdraw cash using card-enabled ATM services supported by your account.,en,mobile,banking77

@@ -1,0 +1,25 @@
+{
+  "model_type": "naive_bayes",
+  "text_col": "text",
+  "label_col": "intent",
+  "response_col": "response",
+  "num_samples": 94,
+  "num_intents": 12,
+  "intents": [
+    "account_opening",
+    "balance_inquiry",
+    "bill_payment",
+    "card_issue",
+    "cash_withdrawal",
+    "fee_inquiry",
+    "fraud_report",
+    "fund_transfer",
+    "kyc_verification",
+    "loan_info",
+    "transaction_status",
+    "wallet_topup"
+  ],
+  "accuracy": 0.9473684210526315,
+  "model_path": "models/classical_nb_check\\naive_bayes_pipeline.joblib",
+  "responses_path": "models/classical_nb_check\\responses_by_intent.json"
+}

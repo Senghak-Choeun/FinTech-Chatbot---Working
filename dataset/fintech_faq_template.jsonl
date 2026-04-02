@@ -1,0 +1,5 @@
+{"question":"How can I reset my online banking password?","answer":"Open login page, choose Forgot password, and complete OTP verification.","intent":"password_reset","tags":["security","login"]}
+{"question":"What is the daily transfer limit?","answer":"Transfer limits vary by account type and can be viewed in app settings.","intent":"transfer_limit","tags":["transfer","limits"]}
+{"question":"How do I enable card international transactions?","answer":"Open card controls and enable international payments before travel.","intent":"card_settings","tags":["card","travel"]}
+{"question":"Can I dispute a completed card transaction?","answer":"Yes, open the transaction and select Dispute charge to start review.","intent":"dispute_transaction","tags":["card","fraud"]}
+{"question":"How do I download my monthly statement?","answer":"Go to Accounts, select your account, then choose Statements and export PDF.","intent":"statement_download","tags":["documents","account"]}

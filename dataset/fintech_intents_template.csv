@@ -1,0 +1,22 @@
+text,intent,response,language,channel
+"How much money do I have in my account?",balance_check,"Your current available balance is shown in the app dashboard.",en,mobile
+"Show me my account balance",balance_check,"You can check your balance instantly from the Accounts tab.",en,web
+"What is my remaining balance after today's purchases?",balance_check,"I can help with that. Please open the latest account summary section.",en,mobile
+"I lost my card, please block it now",card_block,"I have initiated a card block request. Please confirm in security settings.",en,mobile
+"Block my debit card immediately",card_block,"Your card can be blocked from the Cards menu for safety.",en,web
+"Someone stole my ATM card",card_block,"For your protection, please freeze the card right away from the app.",en,mobile
+"Where is my transfer?",transaction_status,"You can track transfer progress in transaction history.",en,web
+"My payment is pending",transaction_status,"Pending transactions are usually completed within one business day.",en,mobile
+"Did my transaction go through?",transaction_status,"Please open the transaction detail page to see the latest status.",en,web
+"I want to apply for a personal loan",loan_info,"You can check loan offers and eligibility in the Loans section.",en,mobile
+"Tell me your loan interest rates",loan_info,"Loan interest rates depend on product type and risk profile.",en,web
+"How long does loan approval take?",loan_info,"Most personal loan applications are reviewed within 24 to 72 hours.",en,mobile
+"I think this charge is fraud",fraud_report,"Please report the transaction immediately so our team can investigate.",en,mobile
+"There is an unknown transaction on my account",fraud_report,"We can help file a fraud claim. Open the transaction and choose Report issue.",en,web
+"My account was charged without my permission",fraud_report,"I recommend locking your card and starting a fraud dispute now.",en,mobile
+"Can I pay my electricity bill from this app?",bill_payment,"Yes, bill payments are available under Payments and Bills.",en,mobile
+"How do I schedule monthly bill payments?",bill_payment,"You can create automatic recurring bill payments from the bill details page.",en,web
+"Is there a fee for paying utility bills?",bill_payment,"Some billers may include convenience fees. Check before confirming payment.",en,mobile
+"I want to open a new savings account",account_opening,"You can open a savings account online by completing eKYC verification.",en,web
+"What documents are needed to open an account?",account_opening,"Usually you need a valid ID and proof of address.",en,mobile
+"Can foreigners open an account with your bank?",account_opening,"Eligibility may vary by region. Please review account opening requirements in app.",en,web

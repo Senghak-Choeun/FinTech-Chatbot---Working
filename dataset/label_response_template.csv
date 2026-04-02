@@ -1,0 +1,8 @@
+intent,response
+balance_check,"You can check your latest balance from the app dashboard."
+card_block,"Please block your card immediately from card controls for safety."
+transaction_status,"I can help you track transaction status from your history."
+loan_info,"Loan details and eligibility are available in the Loans section."
+fraud_report,"Please report unauthorized transactions so we can investigate quickly."
+bill_payment,"Bill payment options are available under Payments and Bills."
+account_opening,"You can start account opening online with eKYC verification."

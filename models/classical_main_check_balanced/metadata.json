@@ -1,0 +1,26 @@
+{
+  "model_type": "naive_bayes",
+  "text_col": "text",
+  "label_col": "intent",
+  "response_col": "response",
+  "num_samples": 1652,
+  "num_intents": 12,
+  "intents": [
+    "account_opening",
+    "balance_inquiry",
+    "bill_payment",
+    "card_issue",
+    "cash_withdrawal",
+    "fee_inquiry",
+    "fraud_report",
+    "fund_transfer",
+    "kyc_verification",
+    "loan_info",
+    "transaction_status",
+    "wallet_topup"
+  ],
+  "accuracy": 0.9305135951661632,
+  "model_path": "models/classical_main_check_balanced\\naive_bayes_pipeline.joblib",
+  "responses_path": "models/classical_main_check_balanced\\responses_by_intent.json",
+  "classification_report": "                    precision    recall  f1-score   support\n\n   account_opening     1.0000    1.0000    1.0000         6\n   balance_inquiry     1.0000    0.6667    0.8000         6\n      bill_payment     1.0000    0.6667    0.8000         6\n        card_issue     0.9821    0.9821    0.9821        56\n   cash_withdrawal     0.8272    1.0000    0.9054        67\n       fee_inquiry     0.8889    0.6486    0.7500        37\n      fraud_report     0.9688    0.9118    0.9394        34\n     fund_transfer     1.0000    1.0000    1.0000         7\n  kyc_verification     1.0000    0.8333    0.9091         6\n         loan_info     1.0000    1.0000    1.0000         6\ntransaction_status     0.9583    0.9892    0.9735        93\n      wallet_topup     1.0000    1.0000    1.0000         7\n\n          accuracy                         0.9305       331\n         macro avg     0.9688    0.8915    0.9216       331\n      weighted avg     0.9347    0.9305    0.9273       331\n"
+}

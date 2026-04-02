@@ -1,0 +1,13 @@
+intent,description,keywords,response_template
+balance_inquiry,Check account balance,"balance|remaining|how much",You can check your latest balance in the app dashboard under Accounts.
+fund_transfer,Send money between accounts,"transfer|send|pay|recipient",To transfer funds, select recipient, amount, and confirm with secure verification.
+fraud_report,Report suspicious transaction,"fraud|unauthorized|unknown charge|stolen",Please report the suspicious transaction immediately and lock your card for safety.
+loan_info,Loan product and eligibility information,"loan|interest|approve|eligible",Loan options and eligibility can be reviewed in the Loans section.
+kyc_verification,Identity verification support,"kyc|verify|identity|document",KYC verification requires identity details and document confirmation.
+account_opening,Open new account guidance,"open account|register|new account",You can open an account online by completing the onboarding steps.
+bill_payment,Pay utilities and recurring bills,"bill|electricity|water|auto pay",Bill payments are available in Payments and Bills, including recurring setup.
+card_issue,Card lost/blocked/declined support,"card not working|declined|lost|replace",For card issues, please open Card Support to freeze, replace, or troubleshoot.
+transaction_status,Check pending/completed transfer status,"pending|status|where is my transfer",You can track the latest transaction status in your transaction history.
+fee_inquiry,Fee and charge explanation,"fee|charge|cost",Fees depend on account plan and transaction type. Check fee preview before confirmation.
+cash_withdrawal,ATM cash withdrawal support,"withdrawal|atm|cash",You can withdraw cash using card-enabled ATM services supported by your account.
+wallet_topup,Top-up to mobile wallets,"top up|wallet|wing|truemoney",Wallet top up is available through linked bank card or bank transfer options.

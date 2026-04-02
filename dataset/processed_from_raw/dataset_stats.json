@@ -1,0 +1,39 @@
+{
+  "total_samples": 1846,
+  "train_samples": 1476,
+  "val_samples": 185,
+  "test_samples": 185,
+  "intents": [
+    "account_opening",
+    "balance_inquiry",
+    "bill_payment",
+    "card_issue",
+    "cash_withdrawal",
+    "fee_inquiry",
+    "fraud_report",
+    "fund_transfer",
+    "kyc_verification",
+    "loan_info",
+    "transaction_status",
+    "wallet_topup"
+  ],
+  "intent_distribution": {
+    "cash_withdrawal": 419,
+    "transaction_status": 385,
+    "card_issue": 346,
+    "fee_inquiry": 229,
+    "fraud_report": 210,
+    "wallet_topup": 198,
+    "fund_transfer": 10,
+    "balance_inquiry": 10,
+    "kyc_verification": 10,
+    "account_opening": 10,
+    "loan_info": 10,
+    "bill_payment": 9
+  },
+  "sources": {
+    "banking77": 1775,
+    "synthetic_seed": 47,
+    "regional_aug": 24
+  }
+}
