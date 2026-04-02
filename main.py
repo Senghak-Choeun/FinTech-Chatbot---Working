@@ -1,5 +1,6 @@
 import argparse
 import json
+import os
 
 from processing.downloader import Banking77Downloader
 from processing.preprocessor import FintechDatasetProcessor
@@ -106,9 +107,160 @@ def cmd_all(args) -> None:
     print(json.dumps(classical_stats, indent=2, ensure_ascii=True))
 
 
+def cmd_quickstart(args) -> None:
+    if args.download_first:
+        download_stats = Banking77Downloader(output_dir=args.raw_output_dir).download()
+        print("Download complete:")
+        print(json.dumps(download_stats, indent=2, ensure_ascii=True))
+
+    processor = FintechDatasetProcessor(random_seed=args.random_seed)
+    process_stats = processor.process(
+        output_dir=args.processed_output_dir,
+        regional_aug=args.regional_aug,
+        bitext_path=args.bitext_path,
+        kaggle_path=args.kaggle_path,
+        banking77_raw_dir=args.raw_output_dir,
+        max_banking77_rows=args.max_banking77_rows,
+        min_samples_per_intent=args.min_samples_per_intent,
+        no_synthetic_fill=args.no_synthetic_fill,
+    )
+    print("Processing complete:")
+    print(json.dumps(process_stats, indent=2, ensure_ascii=True))
+
+    trainer = TransferTrainer()
+
+    if args.mode in {"best_classical", "classical"}:
+        selected_model = "logreg" if args.mode == "best_classical" else args.classical_model
+        classical_stats = ClassicalTrainer().train(
+            data=process_stats["files"]["train"],
+            model=selected_model,
+            output_dir=args.classical_output_dir,
+        )
+        print("Selected training complete:")
+        print(json.dumps(classical_stats, indent=2, ensure_ascii=True))
+        return
+
+    if args.mode == "bert":
+        bert_stats = trainer.train_bert_intent(
+            data=process_stats["files"]["train"],
+            model_name=args.bert_model_name,
+            epochs=args.bert_epochs,
+            batch_size=args.bert_batch_size,
+            learning_rate=args.bert_learning_rate,
+            max_length=args.bert_max_length,
+            output_dir=args.bert_output_dir,
+        )
+        print("Selected training complete:")
+        print(json.dumps(bert_stats, indent=2, ensure_ascii=True))
+        return
+
+    gpt_stats = trainer.train_gpt(
+        data=process_stats["files"]["gpt"],
+        model_name=args.gpt_model_name,
+        epochs=args.gpt_epochs,
+        batch_size=args.gpt_batch_size,
+        learning_rate=args.gpt_learning_rate,
+        max_length=args.gpt_max_length,
+        output_dir=args.gpt_output_dir,
+    )
+    print("Selected training complete:")
+    print(json.dumps(gpt_stats, indent=2, ensure_ascii=True))
+
+
+def _prompt_choice() -> str:
+    print("Choose chatbot mode:")
+    print("1. Best Classical Model")
+    print("2. GPT")
+    print("3. BERT")
+    print("4. Exit")
+    return input("Enter choice (1/2/3/4): ").strip()
+
+
+def _run_interactive_menu() -> None:
+    from chatbot import BertIntentChatbot, ClassicalChatbot, GPTChatbot, run_chat
+
+    choice = _prompt_choice()
+    if choice == "4":
+        print("Bye.")
+        return
+
+    mode_map = {
+        "1": "best_classical",
+        "2": "gpt",
+        "3": "bert",
+    }
+    if choice not in mode_map:
+        print("Invalid choice. Please run again and select 1, 2, 3, or 4.")
+        return
+
+    mode = mode_map[choice]
+    run_train = input("Run training before chat? (y/n, default n): ").strip().lower() == "y"
+
+    if run_train:
+        quickstart_args = argparse.Namespace(
+            mode=mode,
+            download_first=False,
+            raw_output_dir="dataset/raw/banking77",
+            processed_output_dir="dataset/processed",
+            regional_aug="dataset/regional_augmentation_template.csv",
+            bitext_path="",
+            kaggle_path="",
+            max_banking77_rows=0,
+            min_samples_per_intent=40,
+            no_synthetic_fill=False,
+            random_seed=42,
+            classical_model="logreg",
+            classical_output_dir="models/classical",
+            bert_model_name="distilbert-base-uncased",
+            bert_epochs=3,
+            bert_batch_size=8,
+            bert_learning_rate=2e-5,
+            bert_max_length=128,
+            bert_output_dir="models/bert_intent",
+            gpt_model_name="distilgpt2",
+            gpt_epochs=2,
+            gpt_batch_size=4,
+            gpt_learning_rate=5e-5,
+            gpt_max_length=192,
+            gpt_output_dir="models/gpt_finetuned",
+        )
+        cmd_quickstart(quickstart_args)
+
+    if mode == "best_classical":
+        model_path = "models/classical/logreg_pipeline.joblib"
+        responses_path = "models/classical/responses_by_intent.json"
+        if not os.path.exists(model_path) or not os.path.exists(responses_path):
+            print("Model files not found. Run training first with quickstart mode best_classical.")
+            return
+        bot = ClassicalChatbot(model_path=model_path, responses_path=responses_path)
+        run_chat(bot)
+        return
+
+    if mode == "bert":
+        model_dir = "models/bert_intent"
+        responses_path = "models/classical/responses_by_intent.json"
+        if not os.path.exists(model_dir):
+            print("BERT model not found. Run training first with quickstart mode bert.")
+            return
+        if not os.path.exists(responses_path):
+            print("Responses file missing at models/classical/responses_by_intent.json.")
+            print("Train best_classical once to generate intent responses, then try BERT chat again.")
+            return
+        bot = BertIntentChatbot(model_dir=model_dir, responses_path=responses_path)
+        run_chat(bot)
+        return
+
+    model_dir = "models/gpt_finetuned"
+    if not os.path.exists(model_dir):
+        print("GPT model not found. Run training first with quickstart mode gpt.")
+        return
+    bot = GPTChatbot(model_dir=model_dir, max_new_tokens=80)
+    run_chat(bot)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="FinTech chatbot pipeline runner")
-    subparsers = parser.add_subparsers(dest="command", required=True)
+    subparsers = parser.add_subparsers(dest="command")
 
     download = subparsers.add_parser("download", help="Download BANKING77 to local raw folder")
     download.add_argument("--output_dir", type=str, default="dataset/raw/banking77")
@@ -179,12 +331,51 @@ def build_parser() -> argparse.ArgumentParser:
     all_cmd.add_argument("--random_seed", type=int, default=42)
     all_cmd.set_defaults(func=cmd_all)
 
+    quickstart = subparsers.add_parser("quickstart", help="One-command setup + train with selected mode")
+    quickstart.add_argument(
+        "--mode",
+        type=str,
+        default="best_classical",
+        choices=["best_classical", "classical", "bert", "gpt"],
+    )
+    quickstart.add_argument("--download_first", action="store_true")
+    quickstart.add_argument("--raw_output_dir", type=str, default="dataset/raw/banking77")
+    quickstart.add_argument("--processed_output_dir", type=str, default="dataset/processed")
+    quickstart.add_argument("--regional_aug", type=str, default="dataset/regional_augmentation_template.csv")
+    quickstart.add_argument("--bitext_path", type=str, default="")
+    quickstart.add_argument("--kaggle_path", type=str, default="")
+    quickstart.add_argument("--max_banking77_rows", type=int, default=0)
+    quickstart.add_argument("--min_samples_per_intent", type=int, default=40)
+    quickstart.add_argument("--no_synthetic_fill", action="store_true")
+    quickstart.add_argument("--random_seed", type=int, default=42)
+
+    quickstart.add_argument("--classical_model", type=str, default="logreg", choices=["logreg", "naive_bayes", "svm"])
+    quickstart.add_argument("--classical_output_dir", type=str, default="models/classical")
+
+    quickstart.add_argument("--bert_model_name", type=str, default="distilbert-base-uncased")
+    quickstart.add_argument("--bert_epochs", type=int, default=3)
+    quickstart.add_argument("--bert_batch_size", type=int, default=8)
+    quickstart.add_argument("--bert_learning_rate", type=float, default=2e-5)
+    quickstart.add_argument("--bert_max_length", type=int, default=128)
+    quickstart.add_argument("--bert_output_dir", type=str, default="models/bert_intent")
+
+    quickstart.add_argument("--gpt_model_name", type=str, default="distilgpt2")
+    quickstart.add_argument("--gpt_epochs", type=int, default=2)
+    quickstart.add_argument("--gpt_batch_size", type=int, default=4)
+    quickstart.add_argument("--gpt_learning_rate", type=float, default=5e-5)
+    quickstart.add_argument("--gpt_max_length", type=int, default=192)
+    quickstart.add_argument("--gpt_output_dir", type=str, default="models/gpt_finetuned")
+    quickstart.set_defaults(func=cmd_quickstart)
+
     return parser
 
 
 def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
+    if not getattr(args, "command", None):
+        _run_interactive_menu()
+        return
     args.func(args)
 
 
