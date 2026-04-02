@@ -2,6 +2,7 @@ import json
 import os
 import random
 import re
+import hashlib
 from typing import Dict, List, Optional
 
 import pandas as pd
@@ -55,6 +56,67 @@ class FintechDatasetProcessor:
                 "source": source_name,
             }
         )
+
+    def _infer_intent_from_text(self, text: str) -> Optional[str]:
+        t = f" {text.lower()} "
+
+        def has_any(words: List[str]) -> bool:
+            return any(w in t for w in words)
+
+        if has_any([" wallet top up", " top up", "topup "]):
+            return "wallet_topup"
+        if has_any([" loan ", " interest rate", "eligible for quick loan", "loan approval"]):
+            return "loan_info"
+        if has_any([" kyc", " verify my identity", "documents needed", "verification"]):
+            return "kyc_verification"
+        if has_any([" open account", " account registration", "requirements to open", "new account"]):
+            return "account_opening"
+        if has_any([" bill ", " electricity", " water bill", " internet bill", " auto pay"]):
+            return "bill_payment"
+        if has_any([" balance ", "money left", "account balance"]):
+            return "balance_inquiry"
+        if has_any([" fraud", " suspicious", " unauthorized", "unrecognized", "unrecognised", "not mine", "stolen"]):
+            return "fraud_report"
+        if has_any([" fee", " charged", " charge", " extra cost", " service fee"]):
+            return "fee_inquiry"
+        if has_any([" card "]) and has_any(
+            [
+                " not working",
+                " declined",
+                " broken",
+                " damaged",
+                " lost",
+                " blocked",
+                " not received",
+                " hasn t arrived",
+                " not arrived",
+                " card arrival",
+                " track my card",
+                " delivery",
+            ]
+        ):
+            return "card_issue"
+        if has_any([" transfer ", " beneficiary", " recipient", " pending", " transaction status", " not received "]):
+            if has_any([" how to transfer", " send money", " transfer money", " move money"]):
+                return "fund_transfer"
+            return "transaction_status"
+        if has_any([" withdrawal", " withdraw", " atm", " cash out", " take out money"]):
+            return "cash_withdrawal"
+
+        return None
+
+    def _repair_quality(self, df: pd.DataFrame) -> pd.DataFrame:
+        repaired = df.copy()
+
+        # Remove low-value synthetic placeholders.
+        repaired = repaired[~repaired["text"].str.contains(r"\bsample_\d+\b", regex=True, na=False)].copy()
+
+        inferred = repaired["text"].astype(str).map(self._infer_intent_from_text)
+        repaired["intent"] = inferred.fillna(repaired["intent"]).astype(str)
+
+        repaired["response"] = repaired["intent"].map(INTENT_RESPONSE_TEMPLATE).fillna(repaired["response"])
+        repaired = repaired.drop_duplicates(subset=["text", "intent"]).reset_index(drop=True)
+        return repaired
 
     def load_banking77_from_local(self, raw_dir: str, max_rows: Optional[int] = None) -> pd.DataFrame:
         train_path = os.path.join(raw_dir, "train.csv")
@@ -162,7 +224,18 @@ class FintechDatasetProcessor:
             patterns = SYNTHETIC_REGIONAL_PATTERNS.get(intent, [intent.replace("_", " ")])
             for i in range(need):
                 base = patterns[i % len(patterns)]
-                variant = f"{base} sample_{i + 1}"
+                seed = int(hashlib.md5(f"{intent}-{i}".encode("utf-8")).hexdigest()[:8], 16)
+                rng = random.Random(seed)
+                style = i % 4
+                if style == 0:
+                    variant = base
+                elif style == 1:
+                    variant = f"can you help with {base}"
+                elif style == 2:
+                    variant = f"please check {base}"
+                else:
+                    closers = ["today", "for me", "right now", "in the app"]
+                    variant = f"i need support for {base} {rng.choice(closers)}"
                 rows.append(
                     {
                         "text": variant,
@@ -254,6 +327,8 @@ class FintechDatasetProcessor:
             synthetic_df = self.synthesize_missing_examples(df, min_per_intent=min_samples_per_intent)
             if not synthetic_df.empty:
                 df = pd.concat([df, synthetic_df], ignore_index=True)
+
+        df = self._repair_quality(df)
 
         df = df.drop_duplicates(subset=["text", "intent"]).reset_index(drop=True)
         train_df, val_df, test_df = self.stratified_split(df)

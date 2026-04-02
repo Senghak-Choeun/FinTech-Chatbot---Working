@@ -15,8 +15,6 @@ INTENT_RESPONSE_TEMPLATE = {
 
 BANKING77_TO_CORE = {
     "balance_inquiry": [
-        "beneficiary_not_verified",
-        "beneficiary_not_allowed",
         "balance_not_updated_after_cheque_or_bank_transfer",
     ],
     "fund_transfer": [
@@ -36,15 +34,12 @@ BANKING77_TO_CORE = {
         "card_not_received",
         "card_arrival",
         "cash_withdrawal_card",
-        "beneficiary_not_allowed",
     ],
     "transaction_status": [
         "pending_bank_transfer",
         "declined_transfer",
         "transfer_not_received_by_recipient",
         "card_payment_reverted",
-        "cash_withdrawal",
-        "beneficiary_not_allowed",
     ],
     "fee_inquiry": [
         "cash_withdrawal_charge",

@@ -7,9 +7,70 @@ from processing.preprocessor import FintechDatasetProcessor
 from processing.trainers import ClassicalTrainer, TransferTrainer
 
 
+def _print_section(title: str) -> None:
+    print(f"\n=== {title} ===")
+
+
+def _print_raw_json_if_requested(args, payload: dict) -> None:
+    if getattr(args, "json_output", False):
+        _print_section("Raw JSON")
+        print(json.dumps(payload, indent=2, ensure_ascii=True))
+
+
+def _print_download_summary(stats: dict) -> None:
+    _print_section("Download Summary")
+    for key in ["split_train_rows", "split_test_rows", "saved_train", "saved_test", "saved_label_names"]:
+        if key in stats:
+            print(f"- {key}: {stats[key]}")
+
+
+def _print_process_summary(stats: dict) -> None:
+    _print_section("Dataset Summary")
+    print(f"- total_samples: {stats.get('total_samples')}")
+    print(f"- train/val/test: {stats.get('train_samples')}/{stats.get('val_samples')}/{stats.get('test_samples')}")
+    print(f"- intents: {len(stats.get('intents', []))}")
+
+    top_intents = list((stats.get("intent_distribution") or {}).items())[:5]
+    if top_intents:
+        print("- top_intents:")
+        for intent, count in top_intents:
+            print(f"  * {intent}: {count}")
+
+    _print_section("Generated Files")
+    for name, path in (stats.get("files") or {}).items():
+        print(f"- {name}: {path}")
+
+
+def _print_classical_summary(stats: dict) -> None:
+    _print_section("Classical Training Summary")
+    print(f"- model: {stats.get('model_type')}")
+    print(f"- accuracy: {float(stats.get('accuracy', 0.0)):.4f}")
+    print(f"- num_samples: {stats.get('num_samples')}")
+    print(f"- num_intents: {stats.get('num_intents')}")
+
+    _print_section("Saved Artifacts")
+    print(f"- model_path: {stats.get('model_path')}")
+    print(f"- responses_path: {stats.get('responses_path')}")
+
+
+def _print_transfer_summary(model_name: str, metrics: dict, output_dir: str) -> None:
+    _print_section(f"{model_name} Training Summary")
+    for key in ["eval_loss", "eval_accuracy", "eval_f1_macro", "eval_runtime", "epoch"]:
+        if key in metrics:
+            value = metrics[key]
+            if isinstance(value, float):
+                print(f"- {key}: {value:.4f}")
+            else:
+                print(f"- {key}: {value}")
+
+    _print_section("Saved Artifacts")
+    print(f"- output_dir: {output_dir}")
+
+
 def cmd_download(args) -> None:
     stats = Banking77Downloader(output_dir=args.output_dir).download()
-    print(json.dumps(stats, indent=2, ensure_ascii=True))
+    _print_download_summary(stats)
+    _print_raw_json_if_requested(args, stats)
 
 
 def cmd_process(args) -> None:
@@ -24,7 +85,8 @@ def cmd_process(args) -> None:
         min_samples_per_intent=args.min_samples_per_intent,
         no_synthetic_fill=args.no_synthetic_fill,
     )
-    print(json.dumps(stats, indent=2, ensure_ascii=True))
+    _print_process_summary(stats)
+    _print_raw_json_if_requested(args, stats)
 
 
 def cmd_train_classical(args) -> None:
@@ -39,7 +101,8 @@ def cmd_train_classical(args) -> None:
         random_state=args.random_state,
         output_dir=args.output_dir,
     )
-    print(json.dumps(stats, indent=2, ensure_ascii=True))
+    _print_classical_summary(stats)
+    _print_raw_json_if_requested(args, stats)
 
 
 def cmd_train_intent(args) -> None:
@@ -57,7 +120,8 @@ def cmd_train_intent(args) -> None:
         random_state=args.random_state,
         output_dir=args.output_dir,
     )
-    print(json.dumps(metrics, indent=2, ensure_ascii=True))
+    _print_transfer_summary("BERT", metrics, args.output_dir)
+    _print_raw_json_if_requested(args, metrics)
 
 
 def cmd_train_gpt(args) -> None:
@@ -75,13 +139,13 @@ def cmd_train_gpt(args) -> None:
         random_state=args.random_state,
         output_dir=args.output_dir,
     )
-    print(json.dumps(metrics, indent=2, ensure_ascii=True))
+    _print_transfer_summary("GPT", metrics, args.output_dir)
+    _print_raw_json_if_requested(args, metrics)
 
 
 def cmd_all(args) -> None:
     download_stats = Banking77Downloader(output_dir=args.raw_output_dir).download()
-    print("Download complete:")
-    print(json.dumps(download_stats, indent=2, ensure_ascii=True))
+    _print_download_summary(download_stats)
 
     processor = FintechDatasetProcessor(random_seed=args.random_seed)
     process_stats = processor.process(
@@ -94,8 +158,7 @@ def cmd_all(args) -> None:
         min_samples_per_intent=args.min_samples_per_intent,
         no_synthetic_fill=args.no_synthetic_fill,
     )
-    print("Processing complete:")
-    print(json.dumps(process_stats, indent=2, ensure_ascii=True))
+    _print_process_summary(process_stats)
 
     trainer = ClassicalTrainer()
     classical_stats = trainer.train(
@@ -103,15 +166,14 @@ def cmd_all(args) -> None:
         model=args.classical_model,
         output_dir=args.classical_output_dir,
     )
-    print("Classical training complete:")
-    print(json.dumps(classical_stats, indent=2, ensure_ascii=True))
+    _print_classical_summary(classical_stats)
+    _print_raw_json_if_requested(args, {"download": download_stats, "process": process_stats, "classical": classical_stats})
 
 
 def cmd_quickstart(args) -> None:
     if args.download_first:
         download_stats = Banking77Downloader(output_dir=args.raw_output_dir).download()
-        print("Download complete:")
-        print(json.dumps(download_stats, indent=2, ensure_ascii=True))
+        _print_download_summary(download_stats)
 
     processor = FintechDatasetProcessor(random_seed=args.random_seed)
     process_stats = processor.process(
@@ -124,8 +186,7 @@ def cmd_quickstart(args) -> None:
         min_samples_per_intent=args.min_samples_per_intent,
         no_synthetic_fill=args.no_synthetic_fill,
     )
-    print("Processing complete:")
-    print(json.dumps(process_stats, indent=2, ensure_ascii=True))
+    _print_process_summary(process_stats)
 
     trainer = TransferTrainer()
 
@@ -136,8 +197,8 @@ def cmd_quickstart(args) -> None:
             model=selected_model,
             output_dir=args.classical_output_dir,
         )
-        print("Selected training complete:")
-        print(json.dumps(classical_stats, indent=2, ensure_ascii=True))
+        _print_classical_summary(classical_stats)
+        _print_raw_json_if_requested(args, classical_stats)
         return
 
     if args.mode == "bert":
@@ -150,8 +211,8 @@ def cmd_quickstart(args) -> None:
             max_length=args.bert_max_length,
             output_dir=args.bert_output_dir,
         )
-        print("Selected training complete:")
-        print(json.dumps(bert_stats, indent=2, ensure_ascii=True))
+        _print_transfer_summary("BERT", bert_stats, args.bert_output_dir)
+        _print_raw_json_if_requested(args, bert_stats)
         return
 
     gpt_stats = trainer.train_gpt(
@@ -163,8 +224,8 @@ def cmd_quickstart(args) -> None:
         max_length=args.gpt_max_length,
         output_dir=args.gpt_output_dir,
     )
-    print("Selected training complete:")
-    print(json.dumps(gpt_stats, indent=2, ensure_ascii=True))
+    _print_transfer_summary("GPT", gpt_stats, args.gpt_output_dir)
+    _print_raw_json_if_requested(args, gpt_stats)
 
 
 def _prompt_choice() -> str:
@@ -209,6 +270,7 @@ def _run_interactive_menu() -> None:
             min_samples_per_intent=40,
             no_synthetic_fill=False,
             random_seed=42,
+            json_output=False,
             classical_model="logreg",
             classical_output_dir="models/classical",
             bert_model_name="distilbert-base-uncased",
@@ -264,6 +326,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     download = subparsers.add_parser("download", help="Download BANKING77 to local raw folder")
     download.add_argument("--output_dir", type=str, default="dataset/raw/banking77")
+    download.add_argument("--json_output", action="store_true")
     download.set_defaults(func=cmd_download)
 
     process = subparsers.add_parser("process", help="Preprocess datasets into template-ready outputs")
@@ -276,6 +339,7 @@ def build_parser() -> argparse.ArgumentParser:
     process.add_argument("--min_samples_per_intent", type=int, default=40)
     process.add_argument("--no_synthetic_fill", action="store_true")
     process.add_argument("--random_seed", type=int, default=42)
+    process.add_argument("--json_output", action="store_true")
     process.set_defaults(func=cmd_process)
 
     train_classical = subparsers.add_parser("train-classical", help="Train Naive Bayes/LogReg/SVM")
@@ -287,6 +351,7 @@ def build_parser() -> argparse.ArgumentParser:
     train_classical.add_argument("--test_size", type=float, default=0.2)
     train_classical.add_argument("--random_state", type=int, default=42)
     train_classical.add_argument("--output_dir", type=str, default="models/classical")
+    train_classical.add_argument("--json_output", action="store_true")
     train_classical.set_defaults(func=cmd_train_classical)
 
     train_intent = subparsers.add_parser("train-intent", help="Train BERT intent classifier")
@@ -301,6 +366,7 @@ def build_parser() -> argparse.ArgumentParser:
     train_intent.add_argument("--test_size", type=float, default=0.2)
     train_intent.add_argument("--random_state", type=int, default=42)
     train_intent.add_argument("--output_dir", type=str, default="models/bert_intent")
+    train_intent.add_argument("--json_output", action="store_true")
     train_intent.set_defaults(func=cmd_train_intent)
 
     train_gpt = subparsers.add_parser("train-gpt", help="Train GPT-style model")
@@ -315,6 +381,7 @@ def build_parser() -> argparse.ArgumentParser:
     train_gpt.add_argument("--test_size", type=float, default=0.1)
     train_gpt.add_argument("--random_state", type=int, default=42)
     train_gpt.add_argument("--output_dir", type=str, default="models/gpt_finetuned")
+    train_gpt.add_argument("--json_output", action="store_true")
     train_gpt.set_defaults(func=cmd_train_gpt)
 
     all_cmd = subparsers.add_parser("all", help="Run download + process + classical training")
@@ -329,6 +396,7 @@ def build_parser() -> argparse.ArgumentParser:
     all_cmd.add_argument("--classical_model", type=str, default="logreg", choices=["logreg", "naive_bayes", "svm"])
     all_cmd.add_argument("--classical_output_dir", type=str, default="models/classical")
     all_cmd.add_argument("--random_seed", type=int, default=42)
+    all_cmd.add_argument("--json_output", action="store_true")
     all_cmd.set_defaults(func=cmd_all)
 
     quickstart = subparsers.add_parser("quickstart", help="One-command setup + train with selected mode")
@@ -348,6 +416,7 @@ def build_parser() -> argparse.ArgumentParser:
     quickstart.add_argument("--min_samples_per_intent", type=int, default=40)
     quickstart.add_argument("--no_synthetic_fill", action="store_true")
     quickstart.add_argument("--random_seed", type=int, default=42)
+    quickstart.add_argument("--json_output", action="store_true")
 
     quickstart.add_argument("--classical_model", type=str, default="logreg", choices=["logreg", "naive_bayes", "svm"])
     quickstart.add_argument("--classical_output_dir", type=str, default="models/classical")
