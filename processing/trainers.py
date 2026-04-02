@@ -1,5 +1,6 @@
 import json
 import os
+import inspect
 from typing import Dict, List
 
 import joblib
@@ -117,6 +118,40 @@ class ClassicalTrainer:
 
 
 class TransferTrainer:
+    @staticmethod
+    def _make_training_args_kwargs(TrainingArguments, base_kwargs: dict) -> dict:
+        params = inspect.signature(TrainingArguments.__init__).parameters
+        kwargs = dict(base_kwargs)
+
+        if "eval_strategy" in params:
+            kwargs["eval_strategy"] = "epoch"
+        else:
+            kwargs["evaluation_strategy"] = "epoch"
+
+        if "save_strategy" in params:
+            kwargs["save_strategy"] = "epoch"
+
+        return kwargs
+
+    @staticmethod
+    def _build_trainer(Trainer, model, training_args, train_dataset, eval_dataset, tokenizer, compute_metrics=None, data_collator=None):
+        params = inspect.signature(Trainer.__init__).parameters
+        kwargs = {
+            "model": model,
+            "args": training_args,
+            "train_dataset": train_dataset,
+            "eval_dataset": eval_dataset,
+        }
+
+        if "tokenizer" in params:
+            kwargs["tokenizer"] = tokenizer
+        if compute_metrics is not None and "compute_metrics" in params:
+            kwargs["compute_metrics"] = compute_metrics
+        if data_collator is not None and "data_collator" in params:
+            kwargs["data_collator"] = data_collator
+
+        return Trainer(**kwargs)
+
     def train_bert_intent(
         self,
         data: str,
@@ -189,26 +224,29 @@ class TransferTrainer:
             f1 = f1_metric.compute(predictions=preds, references=labels, average="macro")["f1"]
             return {"accuracy": accuracy, "f1_macro": f1}
 
-        training_args = TrainingArguments(
-            output_dir=output_dir,
-            eval_strategy="epoch",
-            save_strategy="epoch",
-            learning_rate=learning_rate,
-            per_device_train_batch_size=batch_size,
-            per_device_eval_batch_size=batch_size,
-            num_train_epochs=epochs,
-            weight_decay=0.01,
-            logging_steps=10,
-            load_best_model_at_end=True,
-            metric_for_best_model="f1_macro",
-            greater_is_better=True,
-            report_to="none",
-            fp16=torch.cuda.is_available(),
+        training_kwargs = self._make_training_args_kwargs(
+            TrainingArguments,
+            {
+                "output_dir": output_dir,
+                "learning_rate": learning_rate,
+                "per_device_train_batch_size": batch_size,
+                "per_device_eval_batch_size": batch_size,
+                "num_train_epochs": epochs,
+                "weight_decay": 0.01,
+                "logging_steps": 10,
+                "load_best_model_at_end": True,
+                "metric_for_best_model": "f1_macro",
+                "greater_is_better": True,
+                "report_to": "none",
+                "fp16": torch.cuda.is_available(),
+            },
         )
+        training_args = TrainingArguments(**training_kwargs)
 
-        trainer = Trainer(
+        trainer = self._build_trainer(
+            Trainer=Trainer,
             model=model,
-            args=training_args,
+            training_args=training_args,
             train_dataset=train_ds,
             eval_dataset=eval_ds,
             tokenizer=tokenizer,
@@ -283,26 +321,29 @@ class TransferTrainer:
         train_ds.set_format(type="torch", columns=["input_ids", "attention_mask"])
         eval_ds.set_format(type="torch", columns=["input_ids", "attention_mask"])
 
-        training_args = TrainingArguments(
-            output_dir=output_dir,
-            eval_strategy="epoch",
-            save_strategy="epoch",
-            learning_rate=learning_rate,
-            per_device_train_batch_size=batch_size,
-            per_device_eval_batch_size=batch_size,
-            num_train_epochs=epochs,
-            weight_decay=0.01,
-            logging_steps=10,
-            load_best_model_at_end=True,
-            metric_for_best_model="eval_loss",
-            greater_is_better=False,
-            report_to="none",
-            fp16=torch.cuda.is_available(),
+        training_kwargs = self._make_training_args_kwargs(
+            TrainingArguments,
+            {
+                "output_dir": output_dir,
+                "learning_rate": learning_rate,
+                "per_device_train_batch_size": batch_size,
+                "per_device_eval_batch_size": batch_size,
+                "num_train_epochs": epochs,
+                "weight_decay": 0.01,
+                "logging_steps": 10,
+                "load_best_model_at_end": True,
+                "metric_for_best_model": "eval_loss",
+                "greater_is_better": False,
+                "report_to": "none",
+                "fp16": torch.cuda.is_available(),
+            },
         )
+        training_args = TrainingArguments(**training_kwargs)
 
-        trainer = Trainer(
+        trainer = self._build_trainer(
+            Trainer=Trainer,
             model=model,
-            args=training_args,
+            training_args=training_args,
             train_dataset=train_ds,
             eval_dataset=eval_ds,
             tokenizer=tokenizer,
