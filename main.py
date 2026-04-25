@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+from typing import List
 
 from processing.downloader import Banking77Downloader
 from processing.preprocessor import FintechDatasetProcessor
@@ -64,6 +65,73 @@ def _find_classical_defaults() -> tuple[str, str]:
     return "models/classical/naive_bayes_pipeline.joblib", "models/classical/responses_by_intent.json"
 
 
+def _has_any_model_weights(folder: str) -> bool:
+    return (
+        os.path.exists(os.path.join(folder, "model.safetensors"))
+        or os.path.exists(os.path.join(folder, "pytorch_model.bin"))
+    )
+
+
+def _discover_model_dirs(model_kind: str) -> List[str]:
+    candidates: List[str] = []
+
+    if model_kind == "bert":
+        preferred = [
+            "models/bert_intent/best_model",
+            "models/bert_intent",
+        ]
+    else:
+        preferred = [
+            "models/gpt_finetuned/best_model",
+            "models/gpt_finetuned",
+        ]
+
+    for folder in preferred:
+        if os.path.isdir(folder):
+            candidates.append(folder)
+
+    for root, dirs, _ in os.walk("models"):
+        for d in dirs:
+            folder = os.path.join(root, d)
+            if model_kind == "bert":
+                is_match = (
+                    os.path.exists(os.path.join(folder, "label_classes.json"))
+                    and os.path.exists(os.path.join(folder, "config.json"))
+                    and _has_any_model_weights(folder)
+                )
+            else:
+                is_match = (
+                    not os.path.exists(os.path.join(folder, "label_classes.json"))
+                    and os.path.exists(os.path.join(folder, "config.json"))
+                    and os.path.exists(os.path.join(folder, "tokenizer_config.json"))
+                    and _has_any_model_weights(folder)
+                )
+            if is_match:
+                candidates.append(folder)
+
+    # Deduplicate while preserving order.
+    seen = set()
+    ordered_unique = []
+    for path in candidates:
+        normalized = os.path.normpath(path)
+        if normalized not in seen:
+            seen.add(normalized)
+            ordered_unique.append(normalized)
+
+    # Prefer the most recently modified candidate.
+    ordered_unique.sort(key=lambda p: os.path.getmtime(p), reverse=True)
+    return ordered_unique
+
+
+def _find_transfer_default(model_kind: str) -> str:
+    discovered = _discover_model_dirs(model_kind=model_kind)
+    if discovered:
+        return discovered[0]
+    if model_kind == "bert":
+        return "models/bert_intent/best_model"
+    return "models/gpt_finetuned/best_model"
+
+
 def _run_chat_menu() -> None:
     from chatbot import BertIntentChatbot, ClassicalChatbot, GPTChatbot, run_chat
 
@@ -78,9 +146,7 @@ def _run_chat_menu() -> None:
         return
 
     if backend_idx == 2:
-        default_model_dir = "models/bert_intent/best_model"
-        if not os.path.exists(default_model_dir):
-            default_model_dir = "models/bert_intent"
+        default_model_dir = _find_transfer_default(model_kind="bert")
         _, default_responses_path = _find_classical_defaults()
         model_dir = _prompt_with_default("BERT model directory", default_model_dir)
         responses_path = _prompt_with_default("Responses JSON path", default_responses_path)
@@ -88,9 +154,7 @@ def _run_chat_menu() -> None:
         run_chat(bot)
         return
 
-    default_model_dir = "models/gpt_finetuned/best_model"
-    if not os.path.exists(default_model_dir):
-        default_model_dir = "models/gpt_finetuned"
+    default_model_dir = _find_transfer_default(model_kind="gpt")
     model_dir = _prompt_with_default("GPT model directory", default_model_dir)
     max_new_tokens = _prompt_int_with_default("Max new tokens", 80)
     bot = GPTChatbot(model_dir=model_dir, max_new_tokens=max_new_tokens)
@@ -126,7 +190,7 @@ def _train_interactive() -> None:
         output_dir = _prompt_with_default("Output directory", "models/bert_intent")
         init_model_path = ""
         if strategy_idx == 2:
-            init_model_path = _prompt_with_default("Best model path", os.path.join(output_dir, "best_model"))
+            init_model_path = _prompt_with_default("Best model path", _find_transfer_default(model_kind="bert"))
 
         args = argparse.Namespace(
             data=_prompt_with_default("Dataset CSV path", "dataset/processed/fintech_intents_train.csv"),
@@ -152,7 +216,7 @@ def _train_interactive() -> None:
         output_dir = _prompt_with_default("Output directory", "models/gpt_finetuned")
         init_model_path = ""
         if strategy_idx == 2:
-            init_model_path = _prompt_with_default("Best model path", os.path.join(output_dir, "best_model"))
+            init_model_path = _prompt_with_default("Best model path", _find_transfer_default(model_kind="gpt"))
 
         args = argparse.Namespace(
             data=_prompt_with_default("Dataset JSONL path", "dataset/processed/fintech_gpt_train.jsonl"),
