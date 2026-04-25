@@ -284,7 +284,11 @@ class TransferTrainer:
         eval_ds.set_format(type="torch", columns=["input_ids", "attention_mask", "labels"])
 
         model_source = init_model_path.strip() if init_model_path.strip() else model_name
-        model = AutoModelForSequenceClassification.from_pretrained(model_source, num_labels=len(label_encoder.classes_))
+        model = AutoModelForSequenceClassification.from_pretrained(
+            model_source,
+            num_labels=len(label_encoder.classes_),
+            ignore_mismatched_sizes=True,
+        )
 
         accuracy_metric = evaluate.load("accuracy")
         f1_metric = evaluate.load("f1")
@@ -320,7 +324,6 @@ class TransferTrainer:
             args=training_args,
             train_dataset=train_ds,
             eval_dataset=eval_ds,
-            tokenizer=tokenizer,
             compute_metrics=compute_metrics,
         )
 
@@ -481,7 +484,6 @@ class TransferTrainer:
             args=training_args,
             train_dataset=train_ds,
             eval_dataset=eval_ds,
-            tokenizer=tokenizer,
             data_collator=data_collator,
         )
 
