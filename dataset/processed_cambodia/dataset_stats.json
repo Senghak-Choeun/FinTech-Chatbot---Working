@@ -1,0 +1,47 @@
+{
+  "total_samples": 536,
+  "train_samples": 428,
+  "val_samples": 54,
+  "test_samples": 54,
+  "intents": [
+    "account_opening",
+    "balance_inquiry",
+    "bill_payment",
+    "card_issue",
+    "cash_withdrawal",
+    "fee_inquiry",
+    "fraud_report",
+    "fund_transfer",
+    "kyc_verification",
+    "loan_info",
+    "transaction_status",
+    "wallet_topup"
+  ],
+  "intent_distribution": {
+    "card_issue": 68,
+    "transaction_status": 68,
+    "balance_inquiry": 40,
+    "fund_transfer": 40,
+    "fraud_report": 40,
+    "loan_info": 40,
+    "kyc_verification": 40,
+    "account_opening": 40,
+    "bill_payment": 40,
+    "fee_inquiry": 40,
+    "cash_withdrawal": 40,
+    "wallet_topup": 40
+  },
+  "sources": {
+    "asia_research_qa2016": 336,
+    "synthetic_seed_cambodia": 140,
+    "asia_custom": 60
+  },
+  "cambodia_only": true,
+  "files": {
+    "full": "dataset/processed_cambodia\\fintech_intents_prepared.csv",
+    "train": "dataset/processed_cambodia\\fintech_intents_train.csv",
+    "val": "dataset/processed_cambodia\\fintech_intents_val.csv",
+    "test": "dataset/processed_cambodia\\fintech_intents_test.csv",
+    "gpt": "dataset/processed_cambodia\\fintech_gpt_train.jsonl"
+  }
+}

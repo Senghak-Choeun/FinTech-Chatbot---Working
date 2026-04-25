@@ -1,0 +1,10 @@
+{"prompt":"How can I check my account balance quickly?","response":"You can open the app dashboard and tap Accounts to see your available and current balance instantly.","category":"balance_check"}
+{"prompt":"I lost my card while traveling, what should I do first?","response":"Please freeze or block your card immediately from the Cards section, then contact support to request a replacement.","category":"card_block"}
+{"prompt":"A payment I made is still pending after several hours.","response":"Pending payments can take some time based on merchant and network processing. Check transaction details for updated status.","category":"transaction_status"}
+{"prompt":"I found a suspicious charge in my transaction history.","response":"Please report the charge as unauthorized, lock your card, and submit a dispute so our fraud team can investigate.","category":"fraud_report"}
+{"prompt":"Can I apply for a personal loan in the app?","response":"Yes. Go to Loans, review your offers, and complete the application form with required details.","category":"loan_info"}
+{"prompt":"How can I pay my water and electricity bills every month automatically?","response":"Use recurring bill payments under Payments and Bills to schedule monthly auto-pay instructions.","category":"bill_payment"}
+{"prompt":"What do I need to open a new savings account online?","response":"You typically need a valid government ID, proof of address, and a short digital verification step.","category":"account_opening"}
+{"prompt":"Is there any fee for instant bank transfer?","response":"Fees depend on transfer type and account plan. Confirm the fee preview before submitting the transfer.","category":"transfer_fees"}
+{"prompt":"My account login is locked after several wrong attempts.","response":"You can unlock access by resetting your password and completing identity verification through OTP.","category":"login_help"}
+{"prompt":"How do I get my bank statement for visa application?","response":"Navigate to Statements, select the month range, and download the signed PDF statement.","category":"statement_download"}

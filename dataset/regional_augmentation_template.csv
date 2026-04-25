@@ -1,0 +1,25 @@
+text,intent,response,language,channel,source
+"how to top up wing wallet",wallet_topup,"Wallet top up is available through linked bank card or bank transfer options.",en,mobile,regional_aug
+"send money from wing to aba",fund_transfer,"To transfer funds, select recipient, amount, and confirm with secure verification.",en,mobile,regional_aug
+"my aba card not working at atm",card_issue,"For card issues, please open Card Support to freeze, replace, or troubleshoot.",en,mobile,regional_aug
+"show my aba account balance",balance_inquiry,"You can check your latest balance in the app dashboard under Accounts.",en,mobile,regional_aug
+"where is my local transfer",transaction_status,"You can track the latest transaction status in your transaction history.",en,mobile,regional_aug
+"i did not make this payment",fraud_report,"Please report the suspicious transaction immediately and lock your card for safety.",en,mobile,regional_aug
+"how much is atm withdrawal fee",fee_inquiry,"Fees depend on account plan and transaction type. Check fee preview before confirmation.",en,mobile,regional_aug
+"can i pay electricity bill in app",bill_payment,"Bill payments are available in Payments and Bills, including recurring setup.",en,mobile,regional_aug
+"kyc rejected what to do",kyc_verification,"KYC verification requires identity details and document confirmation.",en,mobile,regional_aug
+"how to open new savings account",account_opening,"You can open an account online by completing the onboarding steps.",en,mobile,regional_aug
+"what are your personal loan options",loan_info,"Loan options and eligibility can be reviewed in the Loans section.",en,mobile,regional_aug
+"cash withdrawal failed at atm",cash_withdrawal,"You can withdraw cash using card-enabled ATM services supported by your account.",en,mobile,regional_aug
+"how to top up truemoney wallet",wallet_topup,"Wallet top up is available through linked bank card or bank transfer options.",en,mobile,regional_aug
+"transfer to friend local bank",fund_transfer,"To transfer funds, select recipient, amount, and confirm with secure verification.",en,mobile,regional_aug
+"card declined at store in phnom penh",card_issue,"For card issues, please open Card Support to freeze, replace, or troubleshoot.",en,mobile,regional_aug
+"what is my remaining balance",balance_inquiry,"You can check your latest balance in the app dashboard under Accounts.",en,mobile,regional_aug
+"payment still pending today",transaction_status,"You can track the latest transaction status in your transaction history.",en,mobile,regional_aug
+"unknown charge on my aba card",fraud_report,"Please report the suspicious transaction immediately and lock your card for safety.",en,mobile,regional_aug
+"why i was charged transfer fee",fee_inquiry,"Fees depend on account plan and transaction type. Check fee preview before confirmation.",en,mobile,regional_aug
+"set monthly water bill auto pay",bill_payment,"Bill payments are available in Payments and Bills, including recurring setup.",en,mobile,regional_aug
+"how long kyc verification takes",kyc_verification,"KYC verification requires identity details and document confirmation.",en,mobile,regional_aug
+"requirements for account opening",account_opening,"You can open an account online by completing the onboarding steps.",en,mobile,regional_aug
+"loan approval time",loan_info,"Loan options and eligibility can be reviewed in the Loans section.",en,mobile,regional_aug
+"atm daily cash withdrawal limit",cash_withdrawal,"You can withdraw cash using card-enabled ATM services supported by your account.",en,mobile,regional_aug

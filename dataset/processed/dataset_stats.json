@@ -1,0 +1,46 @@
+{
+  "total_samples": 3851,
+  "train_samples": 3080,
+  "val_samples": 385,
+  "test_samples": 386,
+  "intents": [
+    "account_opening",
+    "balance_inquiry",
+    "bill_payment",
+    "card_issue",
+    "cash_withdrawal",
+    "fee_inquiry",
+    "fraud_report",
+    "fund_transfer",
+    "kyc_verification",
+    "loan_info",
+    "transaction_status",
+    "wallet_topup"
+  ],
+  "intent_distribution": {
+    "transaction_status": 752,
+    "cash_withdrawal": 590,
+    "card_issue": 517,
+    "fee_inquiry": 400,
+    "fraud_report": 381,
+    "balance_inquiry": 173,
+    "fund_transfer": 173,
+    "loan_info": 173,
+    "kyc_verification": 173,
+    "account_opening": 173,
+    "bill_payment": 173,
+    "wallet_topup": 173
+  },
+  "sources": {
+    "asia_research_qa2016": 2016,
+    "banking77_local": 1775,
+    "asia_custom": 60
+  },
+  "files": {
+    "full": "dataset/processed\\fintech_intents_prepared.csv",
+    "train": "dataset/processed\\fintech_intents_train.csv",
+    "val": "dataset/processed\\fintech_intents_val.csv",
+    "test": "dataset/processed\\fintech_intents_test.csv",
+    "gpt": "dataset/processed\\fintech_gpt_train.jsonl"
+  }
+}

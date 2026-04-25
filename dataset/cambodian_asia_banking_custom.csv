@@ -1,0 +1,61 @@
+text,intent,response,language,channel,source
+som check balance ban te,balance_inquiry,placeholder,en,mobile,asia_custom
+show my balance lah,balance_inquiry,placeholder,en,mobile,asia_custom
+check duit left in account,balance_inquiry,placeholder,en,mobile,asia_custom
+my account baki berapa now,balance_inquiry,placeholder,en,mobile,asia_custom
+can check my saldo now,balance_inquiry,placeholder,en,mobile,asia_custom
+ot ban transfer to bakong,fund_transfer,placeholder,en,mobile,asia_custom
+transfer now can or not,fund_transfer,placeholder,en,mobile,asia_custom
+send duit to maybank account,fund_transfer,placeholder,en,mobile,asia_custom
+help me transfer to gcash wallet,fund_transfer,placeholder,en,mobile,asia_custom
+send money to promptpay thailand,fund_transfer,placeholder,en,mobile,asia_custom
+unknown payment on my account lah,fraud_report,placeholder,en,mobile,asia_custom
+i did not approve this qr payment,fraud_report,placeholder,en,mobile,asia_custom
+someone used my card in night market,fraud_report,placeholder,en,mobile,asia_custom
+report unauthorized upi transfer now,fraud_report,placeholder,en,mobile,asia_custom
+strange charge from ewallet merchant,fraud_report,placeholder,en,mobile,asia_custom
+need personal loan for family business,loan_info,placeholder,en,mobile,asia_custom
+what is loan interest in cambodia bank,loan_info,placeholder,en,mobile,asia_custom
+can i get quick micro loan approval,loan_info,placeholder,en,mobile,asia_custom
+loan tenor options for sme please,loan_info,placeholder,en,mobile,asia_custom
+how much monthly installment if borrow 3000,loan_info,placeholder,en,mobile,asia_custom
+kyc rejected can help me please,kyc_verification,placeholder,en,mobile,asia_custom
+documents needed for kyc in khqr app,kyc_verification,placeholder,en,mobile,asia_custom
+my id upload blurry how to retry kyc,kyc_verification,placeholder,en,mobile,asia_custom
+passport accepted for account verification,kyc_verification,placeholder,en,mobile,asia_custom
+how long kyc review usually takes,kyc_verification,placeholder,en,mobile,asia_custom
+open new account for student please,account_opening,placeholder,en,mobile,asia_custom
+can foreign worker open bank account here,account_opening,placeholder,en,mobile,asia_custom
+what requirements to open savings account,account_opening,placeholder,en,mobile,asia_custom
+register digital account without branch visit,account_opening,placeholder,en,mobile,asia_custom
+how to open account with phone number only,account_opening,placeholder,en,mobile,asia_custom
+pay electricite du cambodge bill in app,bill_payment,placeholder,en,mobile,asia_custom
+can pay water bill auto debit monthly,bill_payment,placeholder,en,mobile,asia_custom
+pay telco topup and internet bill together,bill_payment,placeholder,en,mobile,asia_custom
+is there fee for utility bill payment,bill_payment,placeholder,en,mobile,asia_custom
+schedule recurring school fee payment,bill_payment,placeholder,en,mobile,asia_custom
+my card cannot tap paynow qr,card_issue,placeholder,en,mobile,asia_custom
+knyom card ot tvka,card_issue,placeholder,en,mobile,asia_custom
+card kena block why,card_issue,placeholder,en,mobile,asia_custom
+replace damaged debit card urgently,card_issue,placeholder,en,mobile,asia_custom
+lost card in phnom penh freeze now,card_issue,placeholder,en,mobile,asia_custom
+where is my transfer still pending ah,transaction_status,placeholder,en,mobile,asia_custom
+status of my cross border transfer,transaction_status,placeholder,en,mobile,asia_custom
+recipient not received transfer yet why,transaction_status,placeholder,en,mobile,asia_custom
+how long remittance to vietnam takes,transaction_status,placeholder,en,mobile,asia_custom
+check if my payment successful or failed,transaction_status,placeholder,en,mobile,asia_custom
+kena fee for qr payment,fee_inquiry,placeholder,en,mobile,asia_custom
+fee nis mean ey,fee_inquiry,placeholder,en,mobile,asia_custom
+why got extra charge ah,fee_inquiry,placeholder,en,mobile,asia_custom
+how much atm fee in baht withdrawal,fee_inquiry,placeholder,en,mobile,asia_custom
+is there transfer fee to local banks,fee_inquiry,placeholder,en,mobile,asia_custom
+atm cash not dispensed but deducted,cash_withdrawal,placeholder,en,mobile,asia_custom
+withdraw riel from atm limit how much,cash_withdrawal,placeholder,en,mobile,asia_custom
+cash withdrawal failed in weekend, cash_withdrawal,placeholder,en,mobile,asia_custom
+i did not make this atm withdrawal,cash_withdrawal,placeholder,en,mobile,asia_custom
+daily withdrawal cap for debit card,cash_withdrawal,placeholder,en,mobile,asia_custom
+topup ewallet now can or not,wallet_topup,placeholder,en,mobile,asia_custom
+reload wallet cepat please,wallet_topup,placeholder,en,mobile,asia_custom
+khqr topup pending,wallet_topup,placeholder,en,mobile,asia_custom
+add money to truemoney from bank,wallet_topup,placeholder,en,mobile,asia_custom
+top up gcash using debit card,wallet_topup,placeholder,en,mobile,asia_custom

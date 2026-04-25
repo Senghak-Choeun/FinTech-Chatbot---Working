@@ -1,0 +1,12 @@
+# Python cache and virtual environment
+__pycache__/
+*.py[cod]
+.venv/
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Training checkpoints and logs
+*.log
