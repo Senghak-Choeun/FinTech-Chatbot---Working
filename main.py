@@ -35,134 +35,108 @@ def _prompt_int_with_default(label: str, default: int) -> int:
         print("Invalid number. Please enter a valid integer.")
 
 
-def _interactive_prepare_datasets() -> dict:
-    print("\nDataset preparation")
-    download_idx = _prompt_choice(
-        "Download BANKING77 before processing?",
-        ["Yes", "No (use existing local BANKING77 files)"],
-    )
+def _find_classical_defaults() -> tuple[str, str]:
+    candidate_dirs = [
+        "models/classical",
+        "models/classical_main_check",
+        "models/classical_main_check_balanced",
+        "models/classical_nb_check",
+    ]
 
-    raw_output_dir = _prompt_with_default("BANKING77 raw folder", "dataset/raw/banking77")
-    processed_output_dir = _prompt_with_default("Processed output folder", "dataset/processed")
-    regional_aug = _prompt_with_default(
-        "Regional augmentation CSV",
-        "dataset/cambodian_asia_banking_qa_2016.csv",
-    )
-    asia_custom_aug = _prompt_with_default(
-        "Custom augmentation CSV",
-        "dataset/cambodian_asia_banking_custom.csv",
-    )
-    max_banking77_rows = _prompt_int_with_default("Max BANKING77 rows (0 = all)", 0)
-    min_samples_per_intent = _prompt_int_with_default("Min samples per intent", 40)
+    for folder in candidate_dirs:
+        metadata_path = os.path.join(folder, "metadata.json")
+        if os.path.exists(metadata_path):
+            try:
+                with open(metadata_path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                if "best_model" in data and "responses_path" in data:
+                    return data["best_model"]["model_path"], data["responses_path"]
+                if "model_path" in data and "responses_path" in data:
+                    return data["model_path"], data["responses_path"]
+            except Exception:
+                continue
 
-    if download_idx == 1:
-        cmd_download(argparse.Namespace(output_dir=raw_output_dir))
+        nb_model = os.path.join(folder, "naive_bayes_pipeline.joblib")
+        responses = os.path.join(folder, "responses_by_intent.json")
+        if os.path.exists(nb_model) and os.path.exists(responses):
+            return nb_model, responses
 
-    processor = FintechDatasetProcessor(random_seed=42)
-    stats = processor.process(
-        output_dir=processed_output_dir,
-        regional_aug=regional_aug,
-        asia_custom_aug=asia_custom_aug,
-        bitext_path="",
-        kaggle_path="",
-        max_banking77_rows=max_banking77_rows,
-        banking77_raw_dir=raw_output_dir,
-        min_samples_per_intent=min_samples_per_intent,
-        no_synthetic_fill=False,
-        cambodia_only=False,
-    )
-
-    print("Dataset processing complete:")
-    print(json.dumps(stats, indent=2, ensure_ascii=True))
-    return stats.get("files", {})
+    return "models/classical/naive_bayes_pipeline.joblib", "models/classical/responses_by_intent.json"
 
 
-def _interactive_run() -> None:
-    print("Interactive training mode")
+def _run_chat_menu() -> None:
+    from chatbot import BertIntentChatbot, ClassicalChatbot, GPTChatbot, run_chat
 
-    prepared_files = {}
-    prep_idx = _prompt_choice(
-        "Prepare custom + BANKING77 dataset before training?",
-        ["Yes", "No"],
-    )
-    if prep_idx == 1:
-        prepared_files = _interactive_prepare_datasets()
+    backend_idx = _prompt_choice("Choose chatbot backend:", ["Classical", "BERT", "GPT"])
 
-    mode_idx = _prompt_choice(
-        "Choose training type:",
-        ["Classical", "BERT Intent", "GPT"],
-    )
+    if backend_idx == 1:
+        default_model_path, default_responses_path = _find_classical_defaults()
+        model_path = _prompt_with_default("Classical model path", default_model_path)
+        responses_path = _prompt_with_default("Responses JSON path", default_responses_path)
+        bot = ClassicalChatbot(model_path=model_path, responses_path=responses_path)
+        run_chat(bot)
+        return
+
+    if backend_idx == 2:
+        default_model_dir = "models/bert_intent/best_model"
+        if not os.path.exists(default_model_dir):
+            default_model_dir = "models/bert_intent"
+        _, default_responses_path = _find_classical_defaults()
+        model_dir = _prompt_with_default("BERT model directory", default_model_dir)
+        responses_path = _prompt_with_default("Responses JSON path", default_responses_path)
+        bot = BertIntentChatbot(model_dir=model_dir, responses_path=responses_path)
+        run_chat(bot)
+        return
+
+    default_model_dir = "models/gpt_finetuned/best_model"
+    if not os.path.exists(default_model_dir):
+        default_model_dir = "models/gpt_finetuned"
+    model_dir = _prompt_with_default("GPT model directory", default_model_dir)
+    max_new_tokens = _prompt_int_with_default("Max new tokens", 80)
+    bot = GPTChatbot(model_dir=model_dir, max_new_tokens=max_new_tokens)
+    run_chat(bot)
+
+
+def _train_interactive() -> None:
+    mode_idx = _prompt_choice("Choose model to train:", ["Classical", "BERT Intent", "GPT"])
 
     if mode_idx == 1:
         model_idx = _prompt_choice(
             "Choose classical model:",
             ["All (logreg + naive_bayes + svm)", "logreg", "naive_bayes", "svm"],
         )
-        model_map = {
-            1: "all",
-            2: "logreg",
-            3: "naive_bayes",
-            4: "svm",
-        }
-
-        data_path = _prompt_with_default(
-            "Dataset CSV path",
-            prepared_files.get("train", "dataset/processed/fintech_intents_train.csv"),
-        )
-        output_dir = _prompt_with_default("Output directory", "models/classical")
+        model_map = {1: "all", 2: "logreg", 3: "naive_bayes", 4: "svm"}
 
         args = argparse.Namespace(
-            data=data_path,
+            data=_prompt_with_default("Dataset CSV path", "dataset/processed/fintech_intents_train.csv"),
             model=model_map[model_idx],
             text_col="text",
             label_col="intent",
             response_col="response",
             test_size=0.2,
             random_state=42,
-            output_dir=output_dir,
+            output_dir=_prompt_with_default("Output directory", "models/classical"),
         )
         cmd_train_classical(args)
-        return
-
-    if mode_idx == 2:
+    elif mode_idx == 2:
         strategy_idx = _prompt_choice(
-            "BERT training strategy:",
-            [
-                "Train from base model",
-                "Resume from checkpoint",
-                "Load previous best weights and continue training",
-            ],
-        )
-
-        data_path = _prompt_with_default(
-            "Dataset CSV path",
-            prepared_files.get("train", "dataset/processed/fintech_intents_train.csv"),
+            "BERT training mode:",
+            ["Train from base model", "Load best weights and continue"],
         )
         output_dir = _prompt_with_default("Output directory", "models/bert_intent")
-        base_model = _prompt_with_default("Base model name", "distilbert-base-uncased")
-
         init_model_path = ""
-        resume_from_checkpoint = ""
         if strategy_idx == 2:
-            resume_from_checkpoint = _prompt_with_default(
-                "Checkpoint path",
-                os.path.join(output_dir, "checkpoint-XXX"),
-            )
-        elif strategy_idx == 3:
-            init_model_path = _prompt_with_default(
-                "Best model path",
-                os.path.join(output_dir, "best_model"),
-            )
+            init_model_path = _prompt_with_default("Best model path", os.path.join(output_dir, "best_model"))
 
         args = argparse.Namespace(
-            data=data_path,
+            data=_prompt_with_default("Dataset CSV path", "dataset/processed/fintech_intents_train.csv"),
             text_col="text",
             label_col="intent",
-            model_name=base_model,
+            model_name=_prompt_with_default("Base model name", "distilbert-base-uncased"),
             init_model_path=init_model_path,
-            resume_from_checkpoint=resume_from_checkpoint,
-            epochs=3,
-            batch_size=8,
+            resume_from_checkpoint="",
+            epochs=_prompt_int_with_default("Epochs", 3),
+            batch_size=_prompt_int_with_default("Batch size", 8),
             learning_rate=2e-5,
             max_length=128,
             test_size=0.2,
@@ -170,53 +144,74 @@ def _interactive_run() -> None:
             output_dir=output_dir,
         )
         cmd_train_intent(args)
-        return
-
-    strategy_idx = _prompt_choice(
-        "GPT training strategy:",
-        [
-            "Train from base model",
-            "Resume from checkpoint",
-            "Load previous best weights and continue training",
-        ],
-    )
-
-    data_path = _prompt_with_default(
-        "Dataset JSONL path",
-        prepared_files.get("gpt", "dataset/processed/fintech_gpt_train.jsonl"),
-    )
-    output_dir = _prompt_with_default("Output directory", "models/gpt_finetuned")
-    base_model = _prompt_with_default("Base model name", "distilgpt2")
-
-    init_model_path = ""
-    resume_from_checkpoint = ""
-    if strategy_idx == 2:
-        resume_from_checkpoint = _prompt_with_default(
-            "Checkpoint path",
-            os.path.join(output_dir, "checkpoint-XXX"),
+    else:
+        strategy_idx = _prompt_choice(
+            "GPT training mode:",
+            ["Train from base model", "Load best weights and continue"],
         )
-    elif strategy_idx == 3:
-        init_model_path = _prompt_with_default(
-            "Best model path",
-            os.path.join(output_dir, "best_model"),
+        output_dir = _prompt_with_default("Output directory", "models/gpt_finetuned")
+        init_model_path = ""
+        if strategy_idx == 2:
+            init_model_path = _prompt_with_default("Best model path", os.path.join(output_dir, "best_model"))
+
+        args = argparse.Namespace(
+            data=_prompt_with_default("Dataset JSONL path", "dataset/processed/fintech_gpt_train.jsonl"),
+            prompt_col="prompt",
+            response_col="response",
+            model_name=_prompt_with_default("Base model name", "distilgpt2"),
+            init_model_path=init_model_path,
+            resume_from_checkpoint="",
+            epochs=_prompt_int_with_default("Epochs", 2),
+            batch_size=_prompt_int_with_default("Batch size", 4),
+            learning_rate=5e-5,
+            max_length=192,
+            test_size=0.1,
+            random_state=42,
+            output_dir=output_dir,
+        )
+        cmd_train_gpt(args)
+
+    open_chat = _prompt_choice("Start chat now?", ["Yes", "No"])
+    if open_chat == 1:
+        _run_chat_menu()
+
+
+def _interactive_run() -> None:
+    print("FinTech Chatbot - simple mode")
+    while True:
+        choice = _prompt_choice(
+            "Choose action:",
+            ["Train model", "Load model and chat", "Prepare dataset", "Exit"],
         )
 
-    args = argparse.Namespace(
-        data=data_path,
-        prompt_col="prompt",
-        response_col="response",
-        model_name=base_model,
-        init_model_path=init_model_path,
-        resume_from_checkpoint=resume_from_checkpoint,
-        epochs=2,
-        batch_size=4,
-        learning_rate=5e-5,
-        max_length=192,
-        test_size=0.1,
-        random_state=42,
-        output_dir=output_dir,
-    )
-    cmd_train_gpt(args)
+        if choice == 1:
+            _train_interactive()
+        elif choice == 2:
+            _run_chat_menu()
+        elif choice == 3:
+            args = argparse.Namespace(
+                output_dir=_prompt_with_default("Processed output folder", "dataset/processed"),
+                regional_aug=_prompt_with_default(
+                    "Regional augmentation CSV",
+                    "dataset/cambodian_asia_banking_qa_2016.csv",
+                ),
+                asia_custom_aug=_prompt_with_default(
+                    "Custom augmentation CSV",
+                    "dataset/cambodian_asia_banking_custom.csv",
+                ),
+                bitext_path="",
+                kaggle_path="",
+                max_banking77_rows=_prompt_int_with_default("Max BANKING77 rows (0 = all)", 0),
+                banking77_raw_dir=_prompt_with_default("BANKING77 raw folder", "dataset/raw/banking77"),
+                min_samples_per_intent=_prompt_int_with_default("Min samples per intent", 40),
+                no_synthetic_fill=False,
+                cambodia_only=False,
+                random_seed=42,
+            )
+            cmd_process(args)
+        else:
+            print("Bye.")
+            break
 
 
 def cmd_download(args) -> None:
@@ -263,6 +258,11 @@ def cmd_train_classical(args) -> None:
             f"{stats['best_model']['name']} (accuracy={stats['best_model']['accuracy']:.4f})"
         )
     print(json.dumps(stats, indent=2, ensure_ascii=True))
+    if args.model == "all":
+        print(f"Saved evaluation files under {args.output_dir}: evaluation_logreg.* evaluation_naive_bayes.* evaluation_svm.*")
+    else:
+        print(f"Saved evaluation files under {args.output_dir}: evaluation_{args.model}.json and evaluation_{args.model}.csv")
+    return stats
 
 
 def cmd_train_intent(args) -> None:
@@ -288,6 +288,8 @@ def cmd_train_intent(args) -> None:
         print(f"Best checkpoint: {metrics['best_model_checkpoint']}")
     print(f"Best model directory: {metrics.get('best_model_dir', args.output_dir)}")
     print(json.dumps(metrics, indent=2, ensure_ascii=True))
+    print(f"Saved evaluation files: {os.path.join(args.output_dir, 'evaluation_bert.json')} and evaluation_bert.csv")
+    return metrics
 
 
 def cmd_train_gpt(args) -> None:
@@ -315,6 +317,8 @@ def cmd_train_gpt(args) -> None:
         print(f"Best checkpoint: {metrics['best_model_checkpoint']}")
     print(f"Best model directory: {metrics.get('best_model_dir', args.output_dir)}")
     print(json.dumps(metrics, indent=2, ensure_ascii=True))
+    print(f"Saved evaluation files: {os.path.join(args.output_dir, 'evaluation_gpt.json')} and evaluation_gpt.csv")
+    return metrics
 
 
 def cmd_all(args) -> None:
@@ -450,7 +454,27 @@ def build_parser() -> argparse.ArgumentParser:
     all_cmd.add_argument("--random_seed", type=int, default=42)
     all_cmd.set_defaults(func=cmd_all)
 
+    chat_cmd = subparsers.add_parser("chat", help="Start chatbot with selected backend")
+    chat_cmd.add_argument("--backend", choices=["classical", "bert", "gpt"], required=True)
+    chat_cmd.add_argument("--model_path", type=str, default="models/classical/naive_bayes_pipeline.joblib")
+    chat_cmd.add_argument("--model_dir", type=str, default="models/bert_intent/best_model")
+    chat_cmd.add_argument("--responses_path", type=str, default="models/classical/responses_by_intent.json")
+    chat_cmd.add_argument("--max_new_tokens", type=int, default=80)
+    chat_cmd.set_defaults(func=cmd_chat)
+
     return parser
+
+
+def cmd_chat(args) -> None:
+    from chatbot import BertIntentChatbot, ClassicalChatbot, GPTChatbot, run_chat
+
+    if args.backend == "classical":
+        bot = ClassicalChatbot(model_path=args.model_path, responses_path=args.responses_path)
+    elif args.backend == "bert":
+        bot = BertIntentChatbot(model_dir=args.model_dir, responses_path=args.responses_path)
+    else:
+        bot = GPTChatbot(model_dir=args.model_dir, max_new_tokens=args.max_new_tokens)
+    run_chat(bot)
 
 
 def main() -> None:

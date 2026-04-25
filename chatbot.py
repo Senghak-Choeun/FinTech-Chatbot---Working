@@ -3,8 +3,6 @@ import json
 import random
 
 import joblib
-import torch
-from transformers import AutoModelForCausalLM, AutoModelForSequenceClassification, AutoTokenizer
 
 
 class ClassicalChatbot:
@@ -23,6 +21,10 @@ class ClassicalChatbot:
 
 class BertIntentChatbot:
     def __init__(self, model_dir: str, responses_path: str):
+        import torch
+        from transformers import AutoModelForSequenceClassification, AutoTokenizer
+
+        self._torch = torch
         self.tokenizer = AutoTokenizer.from_pretrained(model_dir)
         self.model = AutoModelForSequenceClassification.from_pretrained(model_dir)
         with open(f"{model_dir}/label_classes.json", "r", encoding="utf-8") as f:
@@ -32,9 +34,9 @@ class BertIntentChatbot:
 
     def reply(self, user_text: str) -> str:
         inputs = self.tokenizer(user_text, return_tensors="pt", truncation=True, padding=True)
-        with torch.no_grad():
+        with self._torch.no_grad():
             logits = self.model(**inputs).logits
-        pred_id = int(torch.argmax(logits, dim=-1).item())
+        pred_id = int(self._torch.argmax(logits, dim=-1).item())
         intent = self.label_classes[pred_id]
 
         responses = self.responses_by_intent.get(intent, [])
@@ -45,6 +47,8 @@ class BertIntentChatbot:
 
 class GPTChatbot:
     def __init__(self, model_dir: str, max_new_tokens: int = 80):
+        from transformers import AutoModelForCausalLM, AutoTokenizer
+
         self.tokenizer = AutoTokenizer.from_pretrained(model_dir)
         self.model = AutoModelForCausalLM.from_pretrained(model_dir)
         self.max_new_tokens = max_new_tokens

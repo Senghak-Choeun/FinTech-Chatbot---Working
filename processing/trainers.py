@@ -1,6 +1,7 @@
 import json
 import math
 import os
+import inspect
 from typing import Dict, List
 
 import joblib
@@ -74,13 +75,23 @@ class ClassicalTrainer:
         X = df[text_col].astype(str).tolist()
         y = df[label_col].astype(str).tolist()
 
-        X_train, X_test, y_train, y_test = train_test_split(
-            X,
-            y,
-            test_size=test_size,
-            random_state=random_state,
-            stratify=y,
-        )
+        # Fall back to non-stratified split when class counts are too small.
+        try:
+            X_train, X_test, y_train, y_test = train_test_split(
+                X,
+                y,
+                test_size=test_size,
+                random_state=random_state,
+                stratify=y,
+            )
+        except ValueError:
+            X_train, X_test, y_train, y_test = train_test_split(
+                X,
+                y,
+                test_size=test_size,
+                random_state=random_state,
+                stratify=None,
+            )
 
         models_to_run = [model]
         if model == "all":
@@ -99,6 +110,7 @@ class ClassicalTrainer:
             preds = pipeline.predict(X_test)
             acc = accuracy_score(y_test, preds)
             report = classification_report(y_test, preds, digits=4, zero_division=0)
+            report_dict = classification_report(y_test, preds, digits=4, zero_division=0, output_dict=True)
 
             model_path = os.path.join(output_dir, f"{model_name}_pipeline.joblib")
             joblib.dump(pipeline, model_path)
@@ -128,6 +140,27 @@ class ClassicalTrainer:
                     indent=2,
                     ensure_ascii=True,
                 )
+
+            with open(
+                os.path.join(output_dir, f"evaluation_{model_name}.json"),
+                "w",
+                encoding="utf-8",
+            ) as f:
+                json.dump(
+                    {
+                        "model": model_name,
+                        "accuracy": float(acc),
+                        "classification_report": report_dict,
+                    },
+                    f,
+                    indent=2,
+                    ensure_ascii=True,
+                )
+
+            pd.DataFrame(report_dict).T.to_csv(
+                os.path.join(output_dir, f"evaluation_{model_name}.csv"),
+                index=True,
+            )
 
         best_model_name = max(per_model.items(), key=lambda item: item[1]["accuracy"])[0]
         summary = {
@@ -170,6 +203,16 @@ class ClassicalTrainer:
 
 
 class TransferTrainer:
+    @staticmethod
+    def _build_training_arguments_kwargs(**kwargs) -> dict:
+        """Support both evaluation_strategy and eval_strategy across transformers versions."""
+        from transformers import TrainingArguments
+
+        parameters = inspect.signature(TrainingArguments.__init__).parameters
+        if "evaluation_strategy" in parameters:
+            kwargs["evaluation_strategy"] = kwargs.pop("eval_strategy")
+        return kwargs
+
     def train_bert_intent(
         self,
         data: str,
@@ -203,12 +246,20 @@ class TransferTrainer:
         df[text_col] = df[text_col].astype(str)
         df[label_col] = df[label_col].astype(str)
 
-        train_df, eval_df = train_test_split(
-            df,
-            test_size=test_size,
-            random_state=random_state,
-            stratify=df[label_col],
-        )
+        try:
+            train_df, eval_df = train_test_split(
+                df,
+                test_size=test_size,
+                random_state=random_state,
+                stratify=df[label_col],
+            )
+        except ValueError:
+            train_df, eval_df = train_test_split(
+                df,
+                test_size=test_size,
+                random_state=random_state,
+                stratify=None,
+            )
 
         label_encoder = LabelEncoder()
         train_df = train_df.copy()
@@ -246,20 +297,22 @@ class TransferTrainer:
             return {"accuracy": accuracy, "f1_macro": f1}
 
         training_args = TrainingArguments(
-            output_dir=output_dir,
-            eval_strategy="epoch",
-            save_strategy="epoch",
-            learning_rate=learning_rate,
-            per_device_train_batch_size=batch_size,
-            per_device_eval_batch_size=batch_size,
-            num_train_epochs=epochs,
-            weight_decay=0.01,
-            logging_steps=10,
-            load_best_model_at_end=True,
-            metric_for_best_model="f1_macro",
-            greater_is_better=True,
-            report_to="none",
-            fp16=torch.cuda.is_available(),
+            **self._build_training_arguments_kwargs(
+                output_dir=output_dir,
+                eval_strategy="epoch",
+                save_strategy="epoch",
+                learning_rate=learning_rate,
+                per_device_train_batch_size=batch_size,
+                per_device_eval_batch_size=batch_size,
+                num_train_epochs=epochs,
+                weight_decay=0.01,
+                logging_steps=10,
+                load_best_model_at_end=True,
+                metric_for_best_model="f1_macro",
+                greater_is_better=True,
+                report_to="none",
+                fp16=torch.cuda.is_available(),
+            )
         )
 
         trainer = Trainer(
@@ -283,6 +336,14 @@ class TransferTrainer:
             target_names=label_encoder.classes_.tolist(),
             digits=4,
             zero_division=0,
+        )
+        class_report_dict = classification_report(
+            labels,
+            preds,
+            target_names=label_encoder.classes_.tolist(),
+            digits=4,
+            zero_division=0,
+            output_dict=True,
         )
 
         trainer.save_model(output_dir)
@@ -317,6 +378,22 @@ class TransferTrainer:
 
         with open(os.path.join(output_dir, "training_summary.json"), "w", encoding="utf-8") as f:
             json.dump(result, f, indent=2, ensure_ascii=True)
+
+        with open(os.path.join(output_dir, "evaluation_bert.json"), "w", encoding="utf-8") as f:
+            json.dump(
+                {
+                    "metrics": clean_metrics,
+                    "classification_report": class_report_dict,
+                },
+                f,
+                indent=2,
+                ensure_ascii=True,
+            )
+
+        pd.DataFrame(class_report_dict).T.to_csv(
+            os.path.join(output_dir, "evaluation_bert.csv"),
+            index=True,
+        )
 
         return result
 
@@ -381,20 +458,22 @@ class TransferTrainer:
         eval_ds.set_format(type="torch", columns=["input_ids", "attention_mask"])
 
         training_args = TrainingArguments(
-            output_dir=output_dir,
-            eval_strategy="epoch",
-            save_strategy="epoch",
-            learning_rate=learning_rate,
-            per_device_train_batch_size=batch_size,
-            per_device_eval_batch_size=batch_size,
-            num_train_epochs=epochs,
-            weight_decay=0.01,
-            logging_steps=10,
-            load_best_model_at_end=True,
-            metric_for_best_model="eval_loss",
-            greater_is_better=False,
-            report_to="none",
-            fp16=torch.cuda.is_available(),
+            **self._build_training_arguments_kwargs(
+                output_dir=output_dir,
+                eval_strategy="epoch",
+                save_strategy="epoch",
+                learning_rate=learning_rate,
+                per_device_train_batch_size=batch_size,
+                per_device_eval_batch_size=batch_size,
+                num_train_epochs=epochs,
+                weight_decay=0.01,
+                logging_steps=10,
+                load_best_model_at_end=True,
+                metric_for_best_model="eval_loss",
+                greater_is_better=False,
+                report_to="none",
+                fp16=torch.cuda.is_available(),
+            )
         )
 
         trainer = Trainer(
@@ -438,5 +517,12 @@ class TransferTrainer:
 
         with open(os.path.join(output_dir, "training_summary.json"), "w", encoding="utf-8") as f:
             json.dump(result, f, indent=2, ensure_ascii=True)
+
+        with open(os.path.join(output_dir, "evaluation_gpt.json"), "w", encoding="utf-8") as f:
+            json.dump(result, f, indent=2, ensure_ascii=True)
+
+        pd.DataFrame(
+            [{"metric": k, "value": v} for k, v in clean_metrics.items() if isinstance(v, (int, float))]
+        ).to_csv(os.path.join(output_dir, "evaluation_gpt.csv"), index=False)
 
         return result
