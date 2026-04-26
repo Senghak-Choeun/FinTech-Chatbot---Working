@@ -48,6 +48,15 @@ def main() -> None:
         print(stats["classification_report"])
         print(json.dumps({k: v for k, v in stats.items() if k != "classification_report"}, indent=2, ensure_ascii=True))
 
+    if stats.get("run_dir"):
+        print(f"Run directory: {stats['run_dir']}")
+    if stats.get("evaluation_dir"):
+        print(f"Evaluation directory: {stats['evaluation_dir']}")
+    if stats.get("model_run_dir"):
+        print(f"Run model directory: {stats['model_run_dir']}")
+    if stats.get("run_archive_path"):
+        print(f"Run archive (.zip): {stats['run_archive_path']}")
+
 
 if __name__ == "__main__":
     main()

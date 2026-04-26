@@ -326,6 +326,14 @@ def cmd_train_classical(args) -> None:
         print(f"Saved evaluation files under {args.output_dir}: evaluation_logreg.* evaluation_naive_bayes.* evaluation_svm.*")
     else:
         print(f"Saved evaluation files under {args.output_dir}: evaluation_{args.model}.json and evaluation_{args.model}.csv")
+    if stats.get("run_dir"):
+        print(f"Run directory: {stats['run_dir']}")
+    if stats.get("evaluation_dir"):
+        print(f"Evaluation directory: {stats['evaluation_dir']}")
+    if stats.get("model_run_dir"):
+        print(f"Run model directory: {stats['model_run_dir']}")
+    if stats.get("run_archive_path"):
+        print(f"Run archive (.zip): {stats['run_archive_path']}")
     return stats
 
 
@@ -351,6 +359,14 @@ def cmd_train_intent(args) -> None:
     if metrics.get("best_model_checkpoint"):
         print(f"Best checkpoint: {metrics['best_model_checkpoint']}")
     print(f"Best model directory: {metrics.get('best_model_dir', args.output_dir)}")
+    if metrics.get("latest_best_model_dir"):
+        print(f"Latest best model directory: {metrics['latest_best_model_dir']}")
+    if metrics.get("run_dir"):
+        print(f"Run directory: {metrics['run_dir']}")
+    if metrics.get("evaluation_dir"):
+        print(f"Evaluation directory: {metrics['evaluation_dir']}")
+    if metrics.get("run_archive_path"):
+        print(f"Run archive (.zip): {metrics['run_archive_path']}")
     print(json.dumps(metrics, indent=2, ensure_ascii=True))
     print(f"Saved evaluation files: {os.path.join(args.output_dir, 'evaluation_bert.json')} and evaluation_bert.csv")
     return metrics
@@ -380,6 +396,14 @@ def cmd_train_gpt(args) -> None:
     if metrics.get("best_model_checkpoint"):
         print(f"Best checkpoint: {metrics['best_model_checkpoint']}")
     print(f"Best model directory: {metrics.get('best_model_dir', args.output_dir)}")
+    if metrics.get("latest_best_model_dir"):
+        print(f"Latest best model directory: {metrics['latest_best_model_dir']}")
+    if metrics.get("run_dir"):
+        print(f"Run directory: {metrics['run_dir']}")
+    if metrics.get("evaluation_dir"):
+        print(f"Evaluation directory: {metrics['evaluation_dir']}")
+    if metrics.get("run_archive_path"):
+        print(f"Run archive (.zip): {metrics['run_archive_path']}")
     print(json.dumps(metrics, indent=2, ensure_ascii=True))
     print(f"Saved evaluation files: {os.path.join(args.output_dir, 'evaluation_gpt.json')} and evaluation_gpt.csv")
     return metrics

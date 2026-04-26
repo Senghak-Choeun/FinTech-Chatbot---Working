@@ -2,6 +2,8 @@ import json
 import math
 import os
 import inspect
+import shutil
+from datetime import datetime
 from typing import Dict, List
 
 import joblib
@@ -16,6 +18,47 @@ from sklearn.svm import LinearSVC
 
 
 class ClassicalTrainer:
+    @staticmethod
+    def _is_colab() -> bool:
+        return bool(os.environ.get("COLAB_RELEASE_TAG")) or os.path.isdir("/content")
+
+    @staticmethod
+    def _timestamp() -> str:
+        return datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+
+    def _resolve_output_root(self, output_dir: str, model_family: str) -> str:
+        normalized = output_dir.strip()
+        if normalized:
+            return normalized
+        if self._is_colab():
+            return f"/content/model_outputs/{model_family}"
+        return f"models/{model_family}"
+
+    def _prepare_run_dirs(self, output_dir: str, model_family: str) -> dict:
+        output_root = self._resolve_output_root(output_dir=output_dir, model_family=model_family)
+        run_dir = os.path.join(output_root, "runs", f"{model_family}_{self._timestamp()}")
+        evaluation_dir = os.path.join(run_dir, "evaluation")
+        model_dir = os.path.join(run_dir, "model")
+
+        os.makedirs(output_root, exist_ok=True)
+        os.makedirs(evaluation_dir, exist_ok=True)
+        os.makedirs(model_dir, exist_ok=True)
+
+        return {
+            "output_root": output_root,
+            "run_dir": run_dir,
+            "evaluation_dir": evaluation_dir,
+            "model_dir": model_dir,
+        }
+
+    @staticmethod
+    def _archive_run(run_dir: str, output_root: str) -> str:
+        exports_dir = os.path.join(output_root, "exports")
+        os.makedirs(exports_dir, exist_ok=True)
+        archive_base = os.path.join(exports_dir, os.path.basename(run_dir))
+        archive_path = shutil.make_archive(archive_base, "zip", root_dir=run_dir)
+        return archive_path
+
     def build_model(self, model_name: str) -> Pipeline:
         if model_name == "logreg":
             clf = LogisticRegression(max_iter=2000, class_weight="balanced")
@@ -63,7 +106,11 @@ class ClassicalTrainer:
         random_state: int = 42,
         output_dir: str = "models/classical",
     ) -> dict:
-        os.makedirs(output_dir, exist_ok=True)
+        paths = self._prepare_run_dirs(output_dir=output_dir, model_family="classical")
+        output_root = paths["output_root"]
+        run_dir = paths["run_dir"]
+        evaluation_dir = paths["evaluation_dir"]
+        run_model_dir = paths["model_dir"]
 
         df = pd.read_csv(data)
         if text_col not in df.columns or label_col not in df.columns:
@@ -98,8 +145,11 @@ class ClassicalTrainer:
             models_to_run = ["logreg", "naive_bayes", "svm"]
 
         responses_map = self.build_responses_map(df, label_col, response_col)
-        responses_path = os.path.join(output_dir, "responses_by_intent.json")
+        responses_path = os.path.join(output_root, "responses_by_intent.json")
+        responses_run_path = os.path.join(run_model_dir, "responses_by_intent.json")
         with open(responses_path, "w", encoding="utf-8") as f:
+            json.dump(responses_map, f, indent=2, ensure_ascii=True)
+        with open(responses_run_path, "w", encoding="utf-8") as f:
             json.dump(responses_map, f, indent=2, ensure_ascii=True)
 
         per_model = {}
@@ -112,16 +162,19 @@ class ClassicalTrainer:
             report = classification_report(y_test, preds, digits=4, zero_division=0)
             report_dict = classification_report(y_test, preds, digits=4, zero_division=0, output_dict=True)
 
-            model_path = os.path.join(output_dir, f"{model_name}_pipeline.joblib")
+            model_path = os.path.join(output_root, f"{model_name}_pipeline.joblib")
+            model_run_path = os.path.join(run_model_dir, f"{model_name}_pipeline.joblib")
             joblib.dump(pipeline, model_path)
+            joblib.dump(pipeline, model_run_path)
 
             per_model[model_name] = {
                 "accuracy": float(acc),
                 "classification_report": report,
                 "model_path": model_path,
+                "run_model_path": model_run_path,
             }
 
-            with open(os.path.join(output_dir, f"metadata_{model_name}.json"), "w", encoding="utf-8") as f:
+            with open(os.path.join(output_root, f"metadata_{model_name}.json"), "w", encoding="utf-8") as f:
                 json.dump(
                     {
                         "model_type": model_name,
@@ -133,7 +186,9 @@ class ClassicalTrainer:
                         "intents": sorted(df[label_col].astype(str).unique().tolist()),
                         "accuracy": float(acc),
                         "model_path": model_path,
+                        "run_model_path": model_run_path,
                         "responses_path": responses_path,
+                        "responses_run_path": responses_run_path,
                         "classification_report": report,
                     },
                     f,
@@ -142,7 +197,22 @@ class ClassicalTrainer:
                 )
 
             with open(
-                os.path.join(output_dir, f"evaluation_{model_name}.json"),
+                os.path.join(output_root, f"evaluation_{model_name}.json"),
+                "w",
+                encoding="utf-8",
+            ) as f:
+                json.dump(
+                    {
+                        "model": model_name,
+                        "accuracy": float(acc),
+                        "classification_report": report_dict,
+                    },
+                    f,
+                    indent=2,
+                    ensure_ascii=True,
+                )
+            with open(
+                os.path.join(evaluation_dir, f"evaluation_{model_name}.json"),
                 "w",
                 encoding="utf-8",
             ) as f:
@@ -158,7 +228,11 @@ class ClassicalTrainer:
                 )
 
             pd.DataFrame(report_dict).T.to_csv(
-                os.path.join(output_dir, f"evaluation_{model_name}.csv"),
+                os.path.join(output_root, f"evaluation_{model_name}.csv"),
+                index=True,
+            )
+            pd.DataFrame(report_dict).T.to_csv(
+                os.path.join(evaluation_dir, f"evaluation_{model_name}.csv"),
                 index=True,
             )
 
@@ -172,15 +246,25 @@ class ClassicalTrainer:
             "num_intents": int(df[label_col].nunique()),
             "intents": sorted(df[label_col].astype(str).unique().tolist()),
             "responses_path": responses_path,
+            "responses_run_path": responses_run_path,
+            "run_dir": run_dir,
+            "evaluation_dir": evaluation_dir,
+            "model_run_dir": run_model_dir,
             "models": per_model,
             "best_model": {
                 "name": best_model_name,
                 "accuracy": float(per_model[best_model_name]["accuracy"]),
                 "model_path": per_model[best_model_name]["model_path"],
+                "run_model_path": per_model[best_model_name]["run_model_path"],
             },
         }
 
-        with open(os.path.join(output_dir, "metadata.json"), "w", encoding="utf-8") as f:
+        archive_path = self._archive_run(run_dir=run_dir, output_root=output_root)
+        summary["run_archive_path"] = archive_path
+
+        with open(os.path.join(output_root, "metadata.json"), "w", encoding="utf-8") as f:
+            json.dump(summary, f, indent=2, ensure_ascii=True)
+        with open(os.path.join(run_dir, "metadata.json"), "w", encoding="utf-8") as f:
             json.dump(summary, f, indent=2, ensure_ascii=True)
 
         # Preserve old return shape for single-model callers.
@@ -195,7 +279,13 @@ class ClassicalTrainer:
                 "intents": sorted(df[label_col].astype(str).unique().tolist()),
                 "accuracy": float(per_model[model]["accuracy"]),
                 "model_path": per_model[model]["model_path"],
+                "run_model_path": per_model[model]["run_model_path"],
                 "responses_path": responses_path,
+                "responses_run_path": responses_run_path,
+                "run_dir": run_dir,
+                "evaluation_dir": evaluation_dir,
+                "model_run_dir": run_model_dir,
+                "run_archive_path": archive_path,
                 "classification_report": per_model[model]["classification_report"],
             }
 
@@ -203,6 +293,56 @@ class ClassicalTrainer:
 
 
 class TransferTrainer:
+    @staticmethod
+    def _is_colab() -> bool:
+        return bool(os.environ.get("COLAB_RELEASE_TAG")) or os.path.isdir("/content")
+
+    @staticmethod
+    def _timestamp() -> str:
+        return datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+
+    def _resolve_output_root(self, output_dir: str, model_family: str) -> str:
+        normalized = output_dir.strip()
+        if normalized:
+            return normalized
+        if self._is_colab():
+            return f"/content/model_outputs/{model_family}"
+        return f"models/{model_family}"
+
+    def _prepare_run_dirs(self, output_dir: str, model_family: str) -> dict:
+        output_root = self._resolve_output_root(output_dir=output_dir, model_family=model_family)
+        run_dir = os.path.join(output_root, "runs", f"{model_family}_{self._timestamp()}")
+        evaluation_dir = os.path.join(run_dir, "evaluation")
+        model_dir = os.path.join(run_dir, "model")
+        checkpoints_dir = os.path.join(run_dir, "checkpoints")
+
+        os.makedirs(output_root, exist_ok=True)
+        os.makedirs(evaluation_dir, exist_ok=True)
+        os.makedirs(model_dir, exist_ok=True)
+        os.makedirs(checkpoints_dir, exist_ok=True)
+
+        return {
+            "output_root": output_root,
+            "run_dir": run_dir,
+            "evaluation_dir": evaluation_dir,
+            "model_dir": model_dir,
+            "checkpoints_dir": checkpoints_dir,
+        }
+
+    @staticmethod
+    def _archive_run(run_dir: str, output_root: str) -> str:
+        exports_dir = os.path.join(output_root, "exports")
+        os.makedirs(exports_dir, exist_ok=True)
+        archive_base = os.path.join(exports_dir, os.path.basename(run_dir))
+        archive_path = shutil.make_archive(archive_base, "zip", root_dir=run_dir)
+        return archive_path
+
+    @staticmethod
+    def _sync_directory(src: str, dst: str) -> None:
+        if os.path.isdir(dst):
+            shutil.rmtree(dst)
+        shutil.copytree(src, dst)
+
     @staticmethod
     def _build_training_arguments_kwargs(**kwargs) -> dict:
         """Support both evaluation_strategy and eval_strategy across transformers versions."""
@@ -236,7 +376,12 @@ class TransferTrainer:
         from sklearn.preprocessing import LabelEncoder
         from transformers import AutoModelForSequenceClassification, AutoTokenizer, Trainer, TrainingArguments
 
-        os.makedirs(output_dir, exist_ok=True)
+        paths = self._prepare_run_dirs(output_dir=output_dir, model_family="bert_intent")
+        output_root = paths["output_root"]
+        run_dir = paths["run_dir"]
+        evaluation_dir = paths["evaluation_dir"]
+        run_model_dir = paths["model_dir"]
+        run_checkpoints_dir = paths["checkpoints_dir"]
 
         df = pd.read_csv(data)
         if text_col not in df.columns or label_col not in df.columns:
@@ -302,7 +447,7 @@ class TransferTrainer:
 
         training_args = TrainingArguments(
             **self._build_training_arguments_kwargs(
-                output_dir=output_dir,
+                output_dir=run_checkpoints_dir,
                 eval_strategy="epoch",
                 save_strategy="epoch",
                 learning_rate=learning_rate,
@@ -349,13 +494,18 @@ class TransferTrainer:
             output_dict=True,
         )
 
-        trainer.save_model(output_dir)
-        tokenizer.save_pretrained(output_dir)
+        trainer.save_model(run_model_dir)
+        tokenizer.save_pretrained(run_model_dir)
 
-        best_model_dir = os.path.join(output_dir, "best_model")
+        best_model_dir = os.path.join(run_model_dir, "best_model")
         os.makedirs(best_model_dir, exist_ok=True)
         trainer.save_model(best_model_dir)
         tokenizer.save_pretrained(best_model_dir)
+
+        latest_model_dir = os.path.join(output_root, "latest_model")
+        latest_best_model_dir = os.path.join(output_root, "best_model")
+        self._sync_directory(run_model_dir, latest_model_dir)
+        self._sync_directory(best_model_dir, latest_best_model_dir)
 
         clean_metrics = {}
         for key, value in metrics.items():
@@ -364,7 +514,9 @@ class TransferTrainer:
             else:
                 clean_metrics[key] = value
 
-        with open(os.path.join(output_dir, "label_classes.json"), "w", encoding="utf-8") as f:
+        with open(os.path.join(run_model_dir, "label_classes.json"), "w", encoding="utf-8") as f:
+            json.dump(label_encoder.classes_.tolist(), f, indent=2, ensure_ascii=True)
+        with open(os.path.join(output_root, "label_classes.json"), "w", encoding="utf-8") as f:
             json.dump(label_encoder.classes_.tolist(), f, indent=2, ensure_ascii=True)
 
         with open(os.path.join(best_model_dir, "label_classes.json"), "w", encoding="utf-8") as f:
@@ -375,14 +527,35 @@ class TransferTrainer:
             "classification_report": class_report,
             "best_model_checkpoint": trainer.state.best_model_checkpoint,
             "best_model_dir": best_model_dir,
+            "latest_model_dir": latest_model_dir,
+            "latest_best_model_dir": latest_best_model_dir,
+            "run_dir": run_dir,
+            "evaluation_dir": evaluation_dir,
             "init_model_source": model_source,
             "resume_from_checkpoint": resume_from_checkpoint.strip() or None,
         }
 
-        with open(os.path.join(output_dir, "training_summary.json"), "w", encoding="utf-8") as f:
+        result["run_archive_path"] = self._archive_run(run_dir=run_dir, output_root=output_root)
+
+        with open(os.path.join(output_root, "training_summary.json"), "w", encoding="utf-8") as f:
+            json.dump(result, f, indent=2, ensure_ascii=True)
+        with open(os.path.join(run_dir, "training_summary.json"), "w", encoding="utf-8") as f:
             json.dump(result, f, indent=2, ensure_ascii=True)
 
-        with open(os.path.join(output_dir, "evaluation_bert.json"), "w", encoding="utf-8") as f:
+        with open(os.path.join(evaluation_dir, "training_log.json"), "w", encoding="utf-8") as f:
+            json.dump(trainer.state.log_history, f, indent=2, ensure_ascii=True)
+
+        with open(os.path.join(output_root, "evaluation_bert.json"), "w", encoding="utf-8") as f:
+            json.dump(
+                {
+                    "metrics": clean_metrics,
+                    "classification_report": class_report_dict,
+                },
+                f,
+                indent=2,
+                ensure_ascii=True,
+            )
+        with open(os.path.join(evaluation_dir, "evaluation_bert.json"), "w", encoding="utf-8") as f:
             json.dump(
                 {
                     "metrics": clean_metrics,
@@ -394,7 +567,11 @@ class TransferTrainer:
             )
 
         pd.DataFrame(class_report_dict).T.to_csv(
-            os.path.join(output_dir, "evaluation_bert.csv"),
+            os.path.join(output_root, "evaluation_bert.csv"),
+            index=True,
+        )
+        pd.DataFrame(class_report_dict).T.to_csv(
+            os.path.join(evaluation_dir, "evaluation_bert.csv"),
             index=True,
         )
 
@@ -426,7 +603,12 @@ class TransferTrainer:
             TrainingArguments,
         )
 
-        os.makedirs(output_dir, exist_ok=True)
+        paths = self._prepare_run_dirs(output_dir=output_dir, model_family="gpt_finetuned")
+        output_root = paths["output_root"]
+        run_dir = paths["run_dir"]
+        evaluation_dir = paths["evaluation_dir"]
+        run_model_dir = paths["model_dir"]
+        run_checkpoints_dir = paths["checkpoints_dir"]
 
         df = pd.read_json(data, lines=True)
         for col in [prompt_col, response_col]:
@@ -462,7 +644,7 @@ class TransferTrainer:
 
         training_args = TrainingArguments(
             **self._build_training_arguments_kwargs(
-                output_dir=output_dir,
+                output_dir=run_checkpoints_dir,
                 eval_strategy="epoch",
                 save_strategy="epoch",
                 learning_rate=learning_rate,
@@ -490,13 +672,18 @@ class TransferTrainer:
         trainer.train(resume_from_checkpoint=resume_from_checkpoint.strip() or None)
         metrics = trainer.evaluate()
 
-        trainer.save_model(output_dir)
-        tokenizer.save_pretrained(output_dir)
+        trainer.save_model(run_model_dir)
+        tokenizer.save_pretrained(run_model_dir)
 
-        best_model_dir = os.path.join(output_dir, "best_model")
+        best_model_dir = os.path.join(run_model_dir, "best_model")
         os.makedirs(best_model_dir, exist_ok=True)
         trainer.save_model(best_model_dir)
         tokenizer.save_pretrained(best_model_dir)
+
+        latest_model_dir = os.path.join(output_root, "latest_model")
+        latest_best_model_dir = os.path.join(output_root, "best_model")
+        self._sync_directory(run_model_dir, latest_model_dir)
+        self._sync_directory(best_model_dir, latest_best_model_dir)
 
         clean_metrics = {}
         for key, value in metrics.items():
@@ -513,18 +700,34 @@ class TransferTrainer:
             **clean_metrics,
             "best_model_checkpoint": trainer.state.best_model_checkpoint,
             "best_model_dir": best_model_dir,
+            "latest_model_dir": latest_model_dir,
+            "latest_best_model_dir": latest_best_model_dir,
+            "run_dir": run_dir,
+            "evaluation_dir": evaluation_dir,
             "init_model_source": model_source,
             "resume_from_checkpoint": resume_from_checkpoint.strip() or None,
         }
 
-        with open(os.path.join(output_dir, "training_summary.json"), "w", encoding="utf-8") as f:
+        result["run_archive_path"] = self._archive_run(run_dir=run_dir, output_root=output_root)
+
+        with open(os.path.join(output_root, "training_summary.json"), "w", encoding="utf-8") as f:
+            json.dump(result, f, indent=2, ensure_ascii=True)
+        with open(os.path.join(run_dir, "training_summary.json"), "w", encoding="utf-8") as f:
             json.dump(result, f, indent=2, ensure_ascii=True)
 
-        with open(os.path.join(output_dir, "evaluation_gpt.json"), "w", encoding="utf-8") as f:
+        with open(os.path.join(evaluation_dir, "training_log.json"), "w", encoding="utf-8") as f:
+            json.dump(trainer.state.log_history, f, indent=2, ensure_ascii=True)
+
+        with open(os.path.join(output_root, "evaluation_gpt.json"), "w", encoding="utf-8") as f:
+            json.dump(result, f, indent=2, ensure_ascii=True)
+        with open(os.path.join(evaluation_dir, "evaluation_gpt.json"), "w", encoding="utf-8") as f:
             json.dump(result, f, indent=2, ensure_ascii=True)
 
         pd.DataFrame(
             [{"metric": k, "value": v} for k, v in clean_metrics.items() if isinstance(v, (int, float))]
-        ).to_csv(os.path.join(output_dir, "evaluation_gpt.csv"), index=False)
+        ).to_csv(os.path.join(output_root, "evaluation_gpt.csv"), index=False)
+        pd.DataFrame(
+            [{"metric": k, "value": v} for k, v in clean_metrics.items() if isinstance(v, (int, float))]
+        ).to_csv(os.path.join(evaluation_dir, "evaluation_gpt.csv"), index=False)
 
         return result
