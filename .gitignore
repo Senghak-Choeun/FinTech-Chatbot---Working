@@ -18,9 +18,12 @@ Thumbs.db
 checkpoints/
 runs/
 
-# Model and data files (large)
-models/bert_intent/
-models/classical/
+# Model and data files (large) - but keep folder structure with .gitkeep
+models/**/*
+!models/.gitkeep
+!models/bert_intent/.gitkeep
+!models/classical/.gitkeep
+dataset/raw/
 evaluation/
 
 # Model/data file extensions
@@ -65,15 +68,8 @@ verify_changes.py
 add_card_freeze_examples.py
 audit_report.py
 
-# Test and debug files (keep test_intent_prediction.py)
-test_interactive.py
-test_similarity.py
-test_confusion_matrix.py
-test_improved_chatbot.py
+# Test and debug files (keep test_intent_prediction.py only)
+test_*.py
+!test_intent_prediction.py
+debug_*.py
 check_intent.py
-debug_aba.py
-debug_bert.py
-debug_confidence.py
-debug_data.py
-debug_intents.py
-debug_routing.py
