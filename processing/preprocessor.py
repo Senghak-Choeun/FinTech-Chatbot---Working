@@ -425,8 +425,8 @@ class FintechDatasetProcessor:
             if not synthetic_df.empty:
                 df = pd.concat([df, synthetic_df], ignore_index=True)
 
-        # Diversify assistant responses per sample while keeping intent-consistent semantics.
-        df = self.diversify_responses(df)
+        # # Diversify assistant responses per sample while keeping intent-consistent semantics.
+        # df = self.diversify_responses(df)
 
         df = df.drop_duplicates(subset=["text", "intent"]).reset_index(drop=True)
         train_df, val_df, test_df = self.stratified_split(df)

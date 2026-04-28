@@ -19,11 +19,8 @@ checkpoints/
 runs/
 
 # Model and data files (large)
-models/
 models/bert_intent/
 models/classical/
-dataset/raw/
-dataset/processed/
 evaluation/
 
 # Model/data file extensions

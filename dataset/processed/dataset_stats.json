@@ -36,6 +36,7 @@
     "banking77_local": 1775,
     "asia_custom": 60
   },
+  "cambodia_only": false,
   "files": {
     "full": "dataset/processed\\fintech_intents_prepared.csv",
     "train": "dataset/processed\\fintech_intents_train.csv",

@@ -1,0 +1,54 @@
+# 🎯 Chatbot Improvements - Quick Start
+
+## What's Fixed
+
+Your chatbot responses were generic because:
+1. ❌ Wrong model path in code
+2. ❌ Weak intent classifier (Naive Bayes)
+
+## What's New
+
+✅ **Smart Intent Router** - Uses keyword detection to route queries correctly
+- Detects payment methods (ABA, Wing, Bakong, KHQR, etc.)
+- Detects card/block/transfer/status/balance keywords
+- Falls back to ML model if no keywords match
+
+## Run It Now
+
+```bash
+# Interactive chat
+python chatbot.py --backend classical
+
+# Test batch queries
+python test_improved_chatbot.py
+
+# Interactive test
+python test_interactive.py
+```
+
+## Example Results
+
+| Query | Response |
+|-------|----------|
+| "How to transfer with ABA?" | ✅ "Use ABA Mobile transfer to send funds securely..." |
+| "Can I use Wing?" | ✅ "Use Wing app or agent services to transfer..." |
+| "How to block card?" | ✅ "Use card controls to freeze, replace, or troubleshoot..." |
+| "Where is my transfer?" | ✅ "Track status from transaction history..." |
+
+## Key Improvement
+
+**Before:** Generic "Track status..." response for all queries
+**After:** Specific responses for ABA, Wing, Bakong, KHQR, card issues, etc.
+
+## Technical Details
+
+The `SmartIntentRouter` class:
+1. Checks keywords FIRST (high priority detection)
+2. If no keywords match, uses Naive Bayes classifier
+3. Then applies TF-IDF similarity matching to find best response
+
+## Done! 🎉
+
+Your chatbot now gives **contextually relevant, bank/payment-method-specific responses** instead of generic ones.
+
+See [IMPROVEMENTS_SUMMARY.md](IMPROVEMENTS_SUMMARY.md) for full details.
