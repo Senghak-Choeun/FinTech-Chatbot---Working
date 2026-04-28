@@ -356,6 +356,7 @@ class TransferTrainer:
     def train_bert_intent(
         self,
         data: str,
+        test_data: str = "",
         text_col: str = "text",
         label_col: str = "intent",
         model_name: str = "distilbert-base-uncased",
@@ -383,28 +384,38 @@ class TransferTrainer:
         run_model_dir = paths["model_dir"]
         run_checkpoints_dir = paths["checkpoints_dir"]
 
-        df = pd.read_csv(data)
-        if text_col not in df.columns or label_col not in df.columns:
-            raise ValueError(f"Dataset must include '{text_col}' and '{label_col}'. Found: {list(df.columns)}")
+        train_df = pd.read_csv(data)
+        if text_col not in train_df.columns or label_col not in train_df.columns:
+            raise ValueError(f"Dataset must include '{text_col}' and '{label_col}'. Found: {list(train_df.columns)}")
 
-        df = df[[text_col, label_col]].dropna()
-        df[text_col] = df[text_col].astype(str)
-        df[label_col] = df[label_col].astype(str)
+        train_df = train_df[[text_col, label_col]].dropna()
+        train_df[text_col] = train_df[text_col].astype(str)
+        train_df[label_col] = train_df[label_col].astype(str)
 
-        try:
-            train_df, eval_df = train_test_split(
-                df,
-                test_size=test_size,
-                random_state=random_state,
-                stratify=df[label_col],
-            )
-        except ValueError:
-            train_df, eval_df = train_test_split(
-                df,
-                test_size=test_size,
-                random_state=random_state,
-                stratify=None,
-            )
+        # Use separate test data if provided, otherwise do random split
+        if test_data and os.path.exists(test_data):
+            eval_df = pd.read_csv(test_data)
+            if text_col not in eval_df.columns or label_col not in eval_df.columns:
+                raise ValueError(f"Test dataset must include '{text_col}' and '{label_col}'. Found: {list(eval_df.columns)}")
+            eval_df = eval_df[[text_col, label_col]].dropna()
+            eval_df[text_col] = eval_df[text_col].astype(str)
+            eval_df[label_col] = eval_df[label_col].astype(str)
+            print(f"Using pre-split test data: {test_data}")
+        else:
+            try:
+                train_df, eval_df = train_test_split(
+                    train_df,
+                    test_size=test_size,
+                    random_state=random_state,
+                    stratify=train_df[label_col],
+                )
+            except ValueError:
+                train_df, eval_df = train_test_split(
+                    train_df,
+                    test_size=test_size,
+                    random_state=random_state,
+                    stratify=None,
+                )
 
         label_encoder = LabelEncoder()
         train_df = train_df.copy()
@@ -580,6 +591,7 @@ class TransferTrainer:
     def train_gpt(
         self,
         data: str,
+        test_data: str = "",
         prompt_col: str = "prompt",
         response_col: str = "response",
         model_name: str = "distilgpt2",
@@ -610,14 +622,32 @@ class TransferTrainer:
         run_model_dir = paths["model_dir"]
         run_checkpoints_dir = paths["checkpoints_dir"]
 
-        df = pd.read_json(data, lines=True)
+        train_df = pd.read_json(data, lines=True)
         for col in [prompt_col, response_col]:
-            if col not in df.columns:
-                raise ValueError(f"Missing required column '{col}'. Found: {list(df.columns)}")
+            if col not in train_df.columns:
+                raise ValueError(f"Missing required column '{col}'. Found: {list(train_df.columns)}")
 
-        df = df[[prompt_col, response_col]].dropna().copy()
-        df[prompt_col] = df[prompt_col].astype(str)
-        df[response_col] = df[response_col].astype(str)
+        train_df = train_df[[prompt_col, response_col]].dropna().copy()
+        train_df[prompt_col] = train_df[prompt_col].astype(str)
+        train_df[response_col] = train_df[response_col].astype(str)
+
+        # Use separate test data if provided, otherwise do random split
+        if test_data and os.path.exists(test_data):
+            eval_df = pd.read_json(test_data, lines=True)
+            for col in [prompt_col, response_col]:
+                if col not in eval_df.columns:
+                    raise ValueError(f"Test dataset missing required column '{col}'. Found: {list(eval_df.columns)}")
+            eval_df = eval_df[[prompt_col, response_col]].dropna().copy()
+            eval_df[prompt_col] = eval_df[prompt_col].astype(str)
+            eval_df[response_col] = eval_df[response_col].astype(str)
+            print(f"Using pre-split test data: {test_data}")
+            # Create train/eval dfs with combined text for GPT
+            train_df["text"] = "User: " + train_df[prompt_col] + "\nAssistant: " + train_df[response_col]
+            eval_df["text"] = "User: " + eval_df[prompt_col] + "\nAssistant: " + eval_df[response_col]
+        else:
+            df = train_df.copy()
+            df["text"] = "User: " + df[prompt_col] + "\nAssistant: " + df[response_col]
+            train_df, eval_df = train_test_split(df[["text"]], test_size=test_size, random_state=random_state)
 
         tokenizer = AutoTokenizer.from_pretrained(model_name)
         if tokenizer.pad_token is None:
@@ -626,9 +656,10 @@ class TransferTrainer:
         model_source = init_model_path.strip() if init_model_path.strip() else model_name
         model = AutoModelForCausalLM.from_pretrained(model_source)
 
-        df["text"] = "User: " + df[prompt_col] + "\nAssistant: " + df[response_col] + tokenizer.eos_token
+        # Add eos_token to text
+        train_df["text"] = train_df["text"] + tokenizer.eos_token
+        eval_df["text"] = eval_df["text"] + tokenizer.eos_token
 
-        train_df, eval_df = train_test_split(df[["text"]], test_size=test_size, random_state=random_state)
         train_ds = Dataset.from_pandas(train_df, preserve_index=False)
         eval_ds = Dataset.from_pandas(eval_df, preserve_index=False)
 

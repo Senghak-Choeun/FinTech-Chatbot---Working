@@ -9,7 +9,7 @@ def main() -> None:
     subparsers = parser.add_subparsers(dest="task", required=True)
 
     bert_parser = subparsers.add_parser("intent", help="Fine-tune BERT-like encoder for intent classification")
-    bert_parser.add_argument("--data", type=str, default="dataset/processed/fintech_intents_train.csv")
+    bert_parser.add_argument("--data", type=str, default="dataset/processed/fintech_intents_final_train.csv")
     bert_parser.add_argument("--text_col", type=str, default="text")
     bert_parser.add_argument("--label_col", type=str, default="intent")
     bert_parser.add_argument("--model_name", type=str, default="distilbert-base-uncased")

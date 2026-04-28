@@ -172,7 +172,7 @@ def _train_interactive() -> None:
         model_map = {1: "all", 2: "logreg", 3: "naive_bayes", 4: "svm"}
 
         args = argparse.Namespace(
-            data=_prompt_with_default("Dataset CSV path", "dataset/processed/fintech_intents_train.csv"),
+            data=_prompt_with_default("Dataset CSV path", "dataset/processed/fintech_intents_final_train.csv"),
             model=model_map[model_idx],
             text_col="text",
             label_col="intent",
@@ -193,7 +193,8 @@ def _train_interactive() -> None:
             init_model_path = _prompt_with_default("Best model path", _find_transfer_default(model_kind="bert"))
 
         args = argparse.Namespace(
-            data=_prompt_with_default("Dataset CSV path", "dataset/processed/fintech_intents_train.csv"),
+            data=_prompt_with_default("Dataset CSV path", "dataset/processed/fintech_intents_final_train.csv"),
+            test_data=_prompt_with_default("Test CSV path (optional)", "dataset/processed/fintech_intents_final_test.csv"),
             text_col="text",
             label_col="intent",
             model_name=_prompt_with_default("Base model name", "distilbert-base-uncased"),
@@ -220,6 +221,7 @@ def _train_interactive() -> None:
 
         args = argparse.Namespace(
             data=_prompt_with_default("Dataset JSONL path", "dataset/processed/fintech_gpt_train.jsonl"),
+            test_data=_prompt_with_default("Test JSONL path (optional)", ""),
             prompt_col="prompt",
             response_col="response",
             model_name=_prompt_with_default("Base model name", "distilgpt2"),
@@ -341,6 +343,7 @@ def cmd_train_intent(args) -> None:
     trainer = TransferTrainer()
     metrics = trainer.train_bert_intent(
         data=args.data,
+        test_data=args.test_data,
         text_col=args.text_col,
         label_col=args.label_col,
         model_name=args.model_name,
@@ -376,6 +379,7 @@ def cmd_train_gpt(args) -> None:
     trainer = TransferTrainer()
     metrics = trainer.train_gpt(
         data=args.data,
+        test_data=args.test_data,
         prompt_col=args.prompt_col,
         response_col=args.response_col,
         model_name=args.model_name,
@@ -490,7 +494,8 @@ def build_parser() -> argparse.ArgumentParser:
     train_classical.set_defaults(func=cmd_train_classical)
 
     train_intent = subparsers.add_parser("train-intent", help="Train BERT intent classifier")
-    train_intent.add_argument("--data", type=str, default="dataset/processed/fintech_intents_train.csv")
+    train_intent.add_argument("--data", type=str, default="dataset/processed/fintech_intents_final_train.csv")
+    train_intent.add_argument("--test_data", type=str, default="dataset/processed/fintech_intents_final_test.csv", help="Optional separate test data file")
     train_intent.add_argument("--text_col", type=str, default="text")
     train_intent.add_argument("--label_col", type=str, default="intent")
     train_intent.add_argument("--model_name", type=str, default="distilbert-base-uncased")
@@ -507,6 +512,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     train_gpt = subparsers.add_parser("train-gpt", help="Train GPT-style model")
     train_gpt.add_argument("--data", type=str, default="dataset/processed/fintech_gpt_train.jsonl")
+    train_gpt.add_argument("--test_data", type=str, default="", help="Optional separate test data file (JSONL format)")
     train_gpt.add_argument("--prompt_col", type=str, default="prompt")
     train_gpt.add_argument("--response_col", type=str, default="response")
     train_gpt.add_argument("--model_name", type=str, default="distilgpt2")

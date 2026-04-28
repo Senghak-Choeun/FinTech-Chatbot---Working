@@ -6,7 +6,7 @@ from processing.trainers import ClassicalTrainer
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Train classical ML intent classifiers for fintech chatbot")
-    parser.add_argument("--data", type=str, default="dataset/processed/fintech_intents_train.csv")
+    parser.add_argument("--data", type=str, default="dataset/processed/fintech_intents_final_train.csv")
     parser.add_argument("--text_col", type=str, default="text")
     parser.add_argument("--label_col", type=str, default="intent")
     parser.add_argument("--response_col", type=str, default="response")

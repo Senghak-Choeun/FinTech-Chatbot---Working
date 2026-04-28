@@ -2,11 +2,81 @@
 __pycache__/
 *.py[cod]
 .venv/
+venv/
+env/
 
 # OS/editor
 .DS_Store
 Thumbs.db
 .vscode/
+*.swp
+*.swo
+*~
 
 # Training checkpoints and logs
 *.log
+checkpoints/
+runs/
+
+# Model and data files (large)
+models/
+models/bert_intent/
+models/classical/
+dataset/raw/
+dataset/processed/
+evaluation/
+
+# Model/data file extensions
+*.joblib
+*.pkl
+*.pickle
+*.pth
+*.pt
+*.bin
+*.zip
+*.tar.gz
+
+# Python packaging
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Environment variables
+.env
+.env.local
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# IDE
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Temporary files
+*.tmp
+*.bak
+.cache/
+
+# Development and temporary scripts
+update_intents.py
+update_intents_conservative.py
+update_intents_refined.py
+verify_changes.py
+add_card_freeze_examples.py
+audit_report.py
+
+# Test and debug files (keep test_intent_prediction.py)
+test_interactive.py
+test_similarity.py
+test_confusion_matrix.py
+test_improved_chatbot.py
+check_intent.py
+debug_aba.py
+debug_bert.py
+debug_confidence.py
+debug_data.py
+debug_intents.py
+debug_routing.py
