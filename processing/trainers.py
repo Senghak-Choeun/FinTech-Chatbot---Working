@@ -623,30 +623,50 @@ class TransferTrainer:
         run_checkpoints_dir = paths["checkpoints_dir"]
 
         train_df = pd.read_json(data, lines=True)
-        for col in [prompt_col, response_col]:
-            if col not in train_df.columns:
-                raise ValueError(f"Missing required column '{col}'. Found: {list(train_df.columns)}")
-
-        train_df = train_df[[prompt_col, response_col]].dropna().copy()
-        train_df[prompt_col] = train_df[prompt_col].astype(str)
-        train_df[response_col] = train_df[response_col].astype(str)
+        
+        # Handle two formats:
+        # 1. Combined format: {"text": "User: ...\nAssistant: ..."}
+        # 2. Separate columns: {"prompt": "...", "response": "..."}
+        
+        if "text" in train_df.columns:
+            # Combined format - use as-is
+            print(f"Using combined 'text' format")
+            train_df = train_df[["text"]].dropna().copy()
+            train_df["text"] = train_df["text"].astype(str)
+        else:
+            # Separate columns format
+            for col in [prompt_col, response_col]:
+                if col not in train_df.columns:
+                    raise ValueError(f"Missing required column '{col}'. Found: {list(train_df.columns)}")
+            
+            train_df = train_df[[prompt_col, response_col]].dropna().copy()
+            train_df[prompt_col] = train_df[prompt_col].astype(str)
+            train_df[response_col] = train_df[response_col].astype(str)
+            # Create combined text
+            train_df["text"] = "User: " + train_df[prompt_col] + "\nAssistant: " + train_df[response_col]
 
         # Use separate test data if provided, otherwise do random split
         if test_data and os.path.exists(test_data):
             eval_df = pd.read_json(test_data, lines=True)
-            for col in [prompt_col, response_col]:
-                if col not in eval_df.columns:
-                    raise ValueError(f"Test dataset missing required column '{col}'. Found: {list(eval_df.columns)}")
-            eval_df = eval_df[[prompt_col, response_col]].dropna().copy()
-            eval_df[prompt_col] = eval_df[prompt_col].astype(str)
-            eval_df[response_col] = eval_df[response_col].astype(str)
+            
+            if "text" in eval_df.columns:
+                # Combined format in test data
+                eval_df = eval_df[["text"]].dropna().copy()
+                eval_df["text"] = eval_df["text"].astype(str)
+            else:
+                # Separate columns format
+                for col in [prompt_col, response_col]:
+                    if col not in eval_df.columns:
+                        raise ValueError(f"Test dataset missing required column '{col}'. Found: {list(eval_df.columns)}")
+                eval_df = eval_df[[prompt_col, response_col]].dropna().copy()
+                eval_df[prompt_col] = eval_df[prompt_col].astype(str)
+                eval_df[response_col] = eval_df[response_col].astype(str)
+                # Create combined text
+                eval_df["text"] = "User: " + eval_df[prompt_col] + "\nAssistant: " + eval_df[response_col]
+            
             print(f"Using pre-split test data: {test_data}")
-            # Create train/eval dfs with combined text for GPT
-            train_df["text"] = "User: " + train_df[prompt_col] + "\nAssistant: " + train_df[response_col]
-            eval_df["text"] = "User: " + eval_df[prompt_col] + "\nAssistant: " + eval_df[response_col]
         else:
             df = train_df.copy()
-            df["text"] = "User: " + df[prompt_col] + "\nAssistant: " + df[response_col]
             train_df, eval_df = train_test_split(df[["text"]], test_size=test_size, random_state=random_state)
 
         tokenizer = AutoTokenizer.from_pretrained(model_name)
